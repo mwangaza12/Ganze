@@ -1,10 +1,6 @@
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Student } from '@/types/student';
-import { Head, Link } from '@inertiajs/react';
-import { DataTable } from './data-table';
-import { columns } from './columns';
-import { Button } from '@/components/ui/button';
+import { Head } from '@inertiajs/react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
