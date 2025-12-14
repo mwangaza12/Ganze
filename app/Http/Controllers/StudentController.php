@@ -12,4 +12,8 @@ class StudentController extends Controller
         $students =  Student::all();
         return Inertia::render('students/index', ['students'=>$students]);
     }
+
+    public function create(){
+        return Inertia::render('students/create');
+    }
 }

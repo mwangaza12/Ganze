@@ -8,22 +8,18 @@ import { Button } from '@/components/ui/button';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Students',
-        href: '/students'
+        title: 'Enroll Student',
+        href: '/students/create'
     },
 ];
 
 
-export default function Index({ students }: { students: Student[] }) {
+export default function Create() {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Students" />
-            <div className="flex justify-between px-4 mt-4">
-                <h1>Student Management</h1>
-                <Button><Link href="/create-student">Enroll Student</Link></Button>
-            </div>
-            <div className="container mx-auto py-10">
-                <DataTable columns={columns} data={students} />
+            <div>
+                Student Enrollment Form Coming Soon...
             </div>
         </AppLayout>
     );
