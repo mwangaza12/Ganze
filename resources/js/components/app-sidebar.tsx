@@ -1,18 +1,19 @@
 import { NavMain } from '@/components/nav-main';
+import { NavUser } from '@/components/nav-user';
 import {
     Sidebar,
     SidebarContent,
+    SidebarFooter,
     SidebarHeader,
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { dashboard, home, } from '@/routes';
+import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
 import { LayoutGrid, PackageSearch } from 'lucide-react';
 import AppLogo from './app-logo';
-
 
 const mainNavItems: NavItem[] = [
     {
@@ -26,7 +27,6 @@ const mainNavItems: NavItem[] = [
         icon: PackageSearch,
     },
 ];
-
 
 export function AppSidebar() {
     return (
@@ -47,6 +47,9 @@ export function AppSidebar() {
                 <NavMain items={mainNavItems} />
             </SidebarContent>
 
+            <SidebarFooter>
+                <NavUser />
+            </SidebarFooter>
         </Sidebar>
     );
 }

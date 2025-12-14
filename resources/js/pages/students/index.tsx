@@ -1,6 +1,9 @@
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
+import { Student } from '@/types/student';
 import { Head } from '@inertiajs/react';
+import { DataTable } from './data-table';
+import { columns } from './columns';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -9,22 +12,13 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-interface Student {
-    id: number,
-    name: string,
-    email: string
-}
 
 export default function Index({ students }: { students: Student[] }) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Students" />
-            <div>
-                {students.map((s:Student)=> (
-                    <div key={s.id}>
-                        <p>{s.name} - {s.email}</p>
-                    </div>
-                ))}
+            <div className="container mx-auto py-10">
+                <DataTable columns={columns} data={students} />
             </div>
         </AppLayout>
     );
