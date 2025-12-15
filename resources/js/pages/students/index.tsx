@@ -20,7 +20,7 @@ export default function Index({ students }: { students: Student[] }) {
             <Head title="Students" />
             <div className="flex justify-between px-4 mt-4">
                 <h1>Student Management</h1>
-                <Button><Link href="/create-student">Enroll Student</Link></Button>
+                <Button><Link href="/students/create">Enroll Student</Link></Button>
             </div>
             <div className="container mx-auto py-10">
                 <DataTable columns={columns} data={students} />
