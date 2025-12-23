@@ -21,7 +21,7 @@ class StudentController extends Controller
     {
         $query = Student::with(['class', 'stream', 'guardians']);
 
-        // Filter by class
+        // Filter by claEditss
         if ($request->has('class_id')) {
             $query->where('class_id', $request->class_id);
         }
