@@ -25,7 +25,7 @@ class StreamController extends Controller
         $teachers = Teacher::all();
 
         return Inertia::render('Classes/Streams/Create', [
-            'class' => $class,
+            'classItem' => $class,
             'teachers' => $teachers
         ]);
     }

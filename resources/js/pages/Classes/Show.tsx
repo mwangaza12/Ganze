@@ -8,7 +8,7 @@ import { ArrowLeft, Plus, Pencil, Users, BookOpen, Trash2 } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
 
 export default function Show({ auth, classItem }) {
-    const handleDeleteStream = (streamId, streamName) => {
+    const handleDeleteStream = (streamId: any, streamName: any) => {
         if (confirm(`Are you sure you want to delete stream ${streamName}?`)) {
             router.delete(`/classes/${classItem.id}/streams/${streamId}`);
         }

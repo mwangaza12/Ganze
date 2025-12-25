@@ -51,7 +51,7 @@ class ClassController extends Controller
         ])->findOrFail($id);
 
         return Inertia::render('Classes/Show', [
-            'class' => $class
+            'classItem' => $class
         ]);
     }
 

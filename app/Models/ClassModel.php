@@ -28,10 +28,14 @@ class ClassModel extends Model
 
     public function subjects()
     {
-        return $this->belongsToMany(Subject::class, 'class_subjects')
-                    ->withPivot('teacher_id')
-                    ->withTimestamps();
+        return $this->belongsToMany(
+            Subject::class,
+            'class_subjects',
+            'class_id',     // 👈 actual column name
+            'subject_id'
+        )->withPivot('teacher_id')->withTimestamps();
     }
+
 
     public function classSubjects()
     {

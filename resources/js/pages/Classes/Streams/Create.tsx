@@ -1,6 +1,5 @@
 import React from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,9 +12,9 @@ export default function StreamCreate({ auth, classItem, stream, teachers }) {
     const isEdit = !!stream;
     
     const { data, setData, post, put, processing, errors } = useForm({
-        class_id: classItem?.id || stream?.class_id || '',
+        class_id: classItem?.id ?? stream?.class_id ?? 'all',
         name: stream?.name || '',
-        teacher_id: stream?.teacher_id?.toString() || '',
+        teacher_id: stream?.teacher_id?.toString() ?? 'all',
         capacity: stream?.capacity?.toString() || '40',
     });
 
@@ -81,7 +80,7 @@ export default function StreamCreate({ auth, classItem, stream, teachers }) {
                                             <SelectValue placeholder="Select class teacher (optional)" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="">No class teacher</SelectItem>
+                                            <SelectItem value="all">No class teacher</SelectItem>
                                             {teachers?.map((teacher) => (
                                                 <SelectItem key={teacher.id} value={teacher.id.toString()}>
                                                     {teacher.full_name}
