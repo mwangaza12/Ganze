@@ -11,6 +11,7 @@ export interface BreadcrumbItem {
 }
 
 export interface NavGroup {
+    label: Key | null | undefined;
     title: string;
     items: NavItem[];
 }

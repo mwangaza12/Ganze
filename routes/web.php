@@ -7,6 +7,7 @@ use App\Http\Controllers\StudentController;
 use App\Http\Controllers\GuardianController;
 use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\ClassController;
+use App\Http\Controllers\StreamController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\ExamController;
@@ -15,6 +16,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AcademicYearController;
 use App\Http\Controllers\TermController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\ReportController;
 
 Route::get('/', function () {
     return Inertia::render('welcome', [
@@ -23,7 +25,7 @@ Route::get('/', function () {
 })->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-     // Dashboard
+    // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     
     // Students
@@ -49,7 +51,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Classes & Streams
     Route::resource('classes', ClassController::class);
     Route::get('classes/{classId}/students', [ClassController::class, 'students'])->name('classes.students');
-    Route::resource('classes.streams', StreamController::class);
+    
+    // Streams (nested under classes)
+    Route::get('classes/{classId}/streams/create', [StreamController::class, 'create'])->name('classes.streams.create');
+    Route::post('classes/{classId}/streams', [StreamController::class, 'store'])->name('classes.streams.store');
+    Route::get('classes/{classId}/streams/{id}/edit', [StreamController::class, 'edit'])->name('classes.streams.edit');
+    Route::put('classes/{classId}/streams/{id}', [StreamController::class, 'update'])->name('classes.streams.update');
+    Route::delete('classes/{classId}/streams/{id}', [StreamController::class, 'destroy'])->name('classes.streams.destroy');
+    
     Route::post('classes/{classId}/subjects/{subjectId}/assign', [ClassController::class, 'assignSubject'])
         ->name('classes.subjects.assign');
     
@@ -69,7 +78,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('academic-years', AcademicYearController::class);
     Route::post('academic-years/{id}/set-current', [AcademicYearController::class, 'setCurrent'])
         ->name('academic-years.set-current');
-    Route::resource('academic-years.terms', TermController::class);
+    
+    // Terms
+    Route::get('terms', [TermController::class, 'index'])->name('terms.index');
+    Route::get('terms/create', [TermController::class, 'create'])->name('terms.create');
+    Route::post('terms', [TermController::class, 'store'])->name('terms.store');
+    Route::get('terms/{id}/edit', [TermController::class, 'edit'])->name('terms.edit');
+    Route::put('terms/{id}', [TermController::class, 'update'])->name('terms.update');
+    Route::delete('terms/{id}', [TermController::class, 'destroy'])->name('terms.destroy');
     Route::post('terms/{id}/set-current', [TermController::class, 'setCurrent'])
         ->name('terms.set-current');
     
