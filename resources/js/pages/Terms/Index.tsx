@@ -5,20 +5,27 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Plus, Pencil, Trash2, CheckCircle } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
+import { BreadcrumbItem } from '@/types';
 
-export default function Index({ auth, terms, academicYears }) {
-    const handleDelete = (id, name) => {
+export default function Index({ auth, terms }:{ auth: any, terms: any[]}) {
+    const handleDelete = (id: any, name: any) => {
         if (confirm(`Are you sure you want to delete ${name}?`)) {
             router.delete(`/terms/${id}`);
         }
     };
 
-    const setCurrent = (id) => {
+    const setCurrent = (id: any) => {
         router.post(`/terms/${id}/set-current`);
     };
 
+    const breadcrumbs: BreadcrumbItem[] = [
+        {
+            title: 'Terms',
+            href: '/terms'
+        }
+    ];
     return (
-        <AppLayout user={auth.user}>
+        <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Terms" />
 
             <div className="py-6">
@@ -55,7 +62,7 @@ export default function Index({ auth, terms, academicYears }) {
                                                 </Badge>
                                             </div>
                                             <div className="text-sm text-muted-foreground">
-                                                <p>{term.start_date} to {term.end_date}</p>
+                                                <p>{term.start_date.split('T')[0]} to {term.end_date.split('T')[0]}</p>
                                                 <p className="mt-1">Term {term.term_number}</p>
                                             </div>
                                         </div>

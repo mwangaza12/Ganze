@@ -9,8 +9,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Checkbox } from '@/components/ui/checkbox';
 import { ArrowLeft } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
+import { BreadcrumbItem } from '@/types';
 
-export default function GuardianCreateEdit({ auth, guardian, students }) {
+export default function GuardianCreateEdit({ auth, guardian, students }: {auth: any, guardian: any, students: any}) {
     const isEdit = !!guardian;
     
     const { data, setData, post, put, processing, errors } = useForm({
@@ -24,10 +25,10 @@ export default function GuardianCreateEdit({ auth, guardian, students }) {
         relationship: guardian?.relationship || '',
         occupation: guardian?.occupation || '',
         address: guardian?.address || '',
-        student_ids: guardian?.students?.map(s => s.id) || [],
+        student_ids: guardian?.students?.map((s: any) => s.id) || [],
     });
 
-    const handleSubmit = (e) => {
+    const handleSubmit = (e: any) => {
         e.preventDefault();
         
         if (isEdit) {
@@ -37,16 +38,23 @@ export default function GuardianCreateEdit({ auth, guardian, students }) {
         }
     };
 
-    const handleStudentToggle = (studentId) => {
+    const handleStudentToggle = (studentId: any) => {
         setData('student_ids', 
             data.student_ids.includes(studentId)
-                ? data.student_ids.filter(id => id !== studentId)
+                ? data.student_ids.filter((id: any) => id !== studentId)
                 : [...data.student_ids, studentId]
         );
     };
 
+    const breadcrumbs: BreadcrumbItem[] = [
+        {
+            title: "Guardian",
+            href: "/guardian"
+        }
+    ]
+
     return (
-        <AppLayout user={auth.user}>
+        <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={isEdit ? 'Edit Guardian' : 'Add Guardian'} />
 
             <div className="py-6">
@@ -210,7 +218,7 @@ export default function GuardianCreateEdit({ auth, guardian, students }) {
                             </CardHeader>
                             <CardContent>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {students?.map((student) => (
+                                    {students?.map((student: any) => (
                                         <div key={student.id} className="flex items-center space-x-2">
                                             <Checkbox
                                                 id={`student-${student.id}`}

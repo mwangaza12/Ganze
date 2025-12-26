@@ -55,7 +55,7 @@ class AcademicYearController extends Controller
     {
         $academicYear = AcademicYear::findOrFail($id);
 
-        return Inertia::render('AcademicYears/Edit', [
+        return Inertia::render('AcademicYears/Create', [
             'academicYear' => $academicYear
         ]);
     }

@@ -7,7 +7,7 @@ import { ArrowLeft, Pencil, Plus, CheckCircle } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
 
-export default function Show({ auth, academicYear }: {auth: any, academicYear: any}) {
+export default function Show({ academicYear }: { academicYear: any }) {
 
     const breadcrumbs: BreadcrumbItem[] = [
         {

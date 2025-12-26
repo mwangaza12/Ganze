@@ -9,20 +9,24 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { ArrowLeft } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link, useForm } from '@inertiajs/react';
+import { BreadcrumbItem } from '@/types';
 
-export default function CreateEdit({ auth, term, academicYears }) {
+export default function CreateEdit({ term, academicYears }:{ term?: any, academicYears: any[]}) {
     const isEdit = !!term;
+
+    const formatDate = (date?: string) =>
+        date ? date.split('T')[0] : '';
     
     const { data, setData, post, put, processing, errors } = useForm({
         academic_year_id: term?.academic_year_id?.toString() || '',
         term_number: term?.term_number?.toString() || '',
         name: term?.name || '',
-        start_date: term?.start_date || '',
-        end_date: term?.end_date || '',
+        start_date: formatDate(term?.start_date),
+        end_date: formatDate(term?.end_date),
         is_current: term?.is_current || false,
     });
 
-    const handleSubmit = (e) => {
+    const handleSubmit = (e: any) => {
         e.preventDefault();
         
         if (isEdit) {
@@ -32,8 +36,15 @@ export default function CreateEdit({ auth, term, academicYears }) {
         }
     };
 
+    const breadcrumbs: BreadcrumbItem[] = [
+        {
+            title: 'Terms',
+            href: '/terms'
+        }
+    ];
+
     return (
-        <AppLayout user={auth.user}>
+        <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={isEdit ? 'Edit Term' : 'Add Term'} />
 
             <div className="py-6">

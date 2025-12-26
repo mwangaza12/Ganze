@@ -8,13 +8,16 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
-export default function CreateEdit({ auth, academicYear }:{ auth: any; academicYear?: any}) {
+export default function CreateEdit({ academicYear }:{ academicYear?: any}) {
     const isEdit = !!academicYear;
+
+    const formatDate = (date?: string) =>
+        date ? date.split('T')[0] : '';
     
     const { data, setData, post, put, processing, errors } = useForm({
         year: academicYear?.year || '',
-        start_date: academicYear?.start_date || '',
-        end_date: academicYear?.end_date || '',
+        start_date: formatDate(academicYear?.start_date),
+        end_date: formatDate(academicYear?.end_date),
         is_current: academicYear?.is_current || false,
     });
 

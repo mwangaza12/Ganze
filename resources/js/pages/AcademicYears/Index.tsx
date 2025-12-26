@@ -2,12 +2,12 @@ import React from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Plus, Eye, Pencil, Trash2, CheckCircle } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
 
-export default function Index({ auth, academicYears }:{ auth: any; academicYears: any[]}) {
+export default function Index({ academicYears }:{ academicYears: any[]}) {
     const handleDelete = ({id, year}: {id: any, year: any}) => {
         if (confirm(`Are you sure you want to delete ${year}?`)) {
             router.delete(`/academic-years/${id}`);
@@ -60,8 +60,8 @@ export default function Index({ auth, academicYears }:{ auth: any; academicYears
                                                 )}
                                             </div>
                                             <div className="text-sm text-muted-foreground space-y-1">
-                                                <p>Start Date: {year.start_date}</p>
-                                                <p>End Date: {year.end_date}</p>
+                                                <p>Start Date: {year.start_date.split('T')[0]}</p>
+                                                <p>End Date: {year.end_date.split('T')[0]}</p>
                                                 {year.terms && year.terms.length > 0 && (
                                                     <p>Terms: {year.terms.length}</p>
                                                 )}

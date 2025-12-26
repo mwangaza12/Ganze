@@ -65,7 +65,7 @@ class TermController extends Controller
         $term = Term::findOrFail($id);
         $academicYears = AcademicYear::all();
 
-        return Inertia::render('Terms/Edit', [
+        return Inertia::render('Terms/Create', [
             'term' => $term,
             'academicYears' => $academicYears
         ]);
