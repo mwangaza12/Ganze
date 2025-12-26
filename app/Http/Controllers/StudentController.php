@@ -135,7 +135,8 @@ class StudentController extends Controller
             },
             'marks.exam',
             'fees.feeStructure',
-            'payments'
+            'payments',
+            'marks.subject'
         ])->findOrFail($id);
 
         return Inertia::render('Students/Show', [

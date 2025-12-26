@@ -1,4 +1,3 @@
-import React from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,8 +8,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Checkbox } from '@/components/ui/checkbox';
 import { ArrowLeft } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
+import { BreadcrumbItem } from '@/types';
 
-export default function CreateEdit({ auth, teacher, subjects }) {
+export default function CreateEdit({ teacher, subjects }: { teacher: any, subjects: any}) {
     const isEdit = !!teacher;
     
     const { data, setData, post, put, processing, errors } = useForm({
@@ -29,10 +29,10 @@ export default function CreateEdit({ auth, teacher, subjects }) {
         emergency_contact: teacher?.emergency_contact || '',
         emergency_contact_name: teacher?.emergency_contact_name || '',
         email: teacher?.user?.email || '',
-        subject_ids: teacher?.subjects?.map(s => s.id) || [],
+        subject_ids: teacher?.subjects?.map((s: any) => s.id) || [],
     });
 
-    const handleSubmit = (e) => {
+    const handleSubmit = (e: any) => {
         e.preventDefault();
         
         if (isEdit) {
@@ -42,16 +42,23 @@ export default function CreateEdit({ auth, teacher, subjects }) {
         }
     };
 
-    const handleSubjectToggle = (subjectId) => {
+    const handleSubjectToggle = (subjectId: any) => {
         setData('subject_ids', 
             data.subject_ids.includes(subjectId)
-                ? data.subject_ids.filter(id => id !== subjectId)
+                ? data.subject_ids.filter((id: any) => id !== subjectId)
                 : [...data.subject_ids, subjectId]
         );
     };
 
+    const breadcrumbs: BreadcrumbItem[] = [
+        {
+            title: "Teacher",
+            href: "/teachers",
+        }
+    ]
+
     return (
-        <AppLayout user={auth.user}>
+        <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={isEdit ? 'Edit Teacher' : 'Add Teacher'} />
 
             <div className="py-6">

@@ -37,6 +37,7 @@ export default function Show({ auth, student }:{ auth: any; student: any }) {
         return variants[status] || 'default';
     };
 
+    console.log(student);
     return (
         <AppLayout breadcrumbs={auth.user}>
             <Head title={`Student - ${student.full_name}`} />
