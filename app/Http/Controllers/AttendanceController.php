@@ -83,36 +83,38 @@ class AttendanceController extends Controller
             'attendance.*.remarks' => 'nullable|string',
         ]);
 
-        DB::beginTransaction();
-        try {
-            $marked_by = auth()->user()->teacher->id ?? null;
+        dd($validated);
 
-            foreach ($validated['attendance'] as $record) {
-                Attendance::updateOrCreate(
-                    [
-                        'student_id' => $record['student_id'],
-                        'date' => $validated['date'],
-                    ],
-                    [
-                        'class_id' => $validated['class_id'],
-                        'status' => $record['status'],
-                        'remarks' => $record['remarks'] ?? null,
-                        'marked_by' => $marked_by,
-                        'check_in_time' => now(),
-                    ]
-                );
-            }
+        // DB::beginTransaction();
+        // try {
+        //     $marked_by = auth()->user()->teacher->id ?? null;
 
-            DB::commit();
+        //     foreach ($validated['attendance'] as $record) {
+        //         Attendance::updateOrCreate(
+        //             [
+        //                 'student_id' => $record['student_id'],
+        //                 'date' => $validated['date'],
+        //             ],
+        //             [
+        //                 'class_id' => $validated['class_id'],
+        //                 'status' => $record['status'],
+        //                 'remarks' => $record['remarks'] ?? null,
+        //                 'marked_by' => $marked_by,
+        //                 'check_in_time' => now(),
+        //             ]
+        //         );
+        //     }
 
-            return redirect()->route('attendance.index')
-                ->with('success', 'Attendance marked successfully');
+        //     DB::commit();
 
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->withErrors(['error' => 'Failed to mark attendance: ' . $e->getMessage()])
-                ->withInput();
-        }
+        //     return redirect()->route('attendance.index')
+        //         ->with('success', 'Attendance marked successfully');
+
+        // } catch (\Exception $e) {
+        //     DB::rollBack();
+        //     return back()->withErrors(['error' => 'Failed to mark attendance: ' . $e->getMessage()])
+        //         ->withInput();
+        // }
     }
 
     /**

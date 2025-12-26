@@ -1,6 +1,5 @@
 import React from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,8 +8,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ArrowLeft } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
+import { BreadcrumbItem } from '@/types';
 
-export default function Edit({ auth, exam, terms, classes }) {
+export default function Edit({ exam }:{exam: any}) {
     const { data, setData, put, processing, errors } = useForm({
         term_id: exam.term_id?.toString() || '',
         class_id: exam.class_id?.toString() || '',
@@ -21,13 +21,20 @@ export default function Edit({ auth, exam, terms, classes }) {
         description: exam.description || '',
     });
 
-    const handleSubmit = (e) => {
+    const handleSubmit = (e: any) => {
         e.preventDefault();
         put(`/exams/${exam.id}`);
     };
 
+    const breadcrumbs: BreadcrumbItem[] = [
+        {
+            title: "Exams",
+            href: "/exams"
+        }
+    ]
+
     return (
-        <AppLayout user={auth.user}>
+        <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Edit Exam" />
 
             <div className="py-6">
@@ -91,7 +98,7 @@ export default function Edit({ auth, exam, terms, classes }) {
                                         <Input
                                             id="exam_date"
                                             type="date"
-                                            value={data.exam_date}
+                                            value={data.exam_date.split('T')[0]}
                                             onChange={(e) => setData('exam_date', e.target.value)}
                                         />
                                         {errors.exam_date && <p className="text-sm text-destructive">{errors.exam_date}</p>}

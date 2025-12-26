@@ -24,82 +24,78 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { ArrowLeft, Check, X } from 'lucide-react';
+import { Check, X } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
 
-export default function Create({ auth, classes, selectedClass, students, date }:{auth: any, classes: any, selectedClass: any, students: any,date: any}) {
-    const [attendanceData, setAttendanceData] = useState({});
+export default function Create({ classes, selectedClass, students, date }: { classes: any; selectedClass: any; students: any; date: any }) {
+    const [attendanceData, setAttendanceData] = useState<Record<string | number, any>>({});
+
     const { data, setData, post, processing, errors } = useForm({
-        class_id: selectedClass?.id || '',
-        date: date,
-        attendance: []
+        class_id: selectedClass?.id?.toString() ?? '',
+        date: date ?? '',
+        attendance: [],
     });
 
     useEffect(() => {
-        if (students) {
-            const initialData = {};
+        if (students && students.length > 0) {
+            const initialData: Record<string | number, any> = {};
             students.forEach((student: any) => {
                 const existing = student.attendance?.[0];
                 initialData[student.id] = {
                     student_id: student.id,
-                    status: existing?.status || 'present',
-                    remarks: existing?.remarks || ''
+                    status: existing?.status ?? 'present',
+                    remarks: existing?.remarks ?? '',
                 };
             });
             setAttendanceData(initialData);
         }
     }, [students]);
 
-    const handleStatusChange = ({studentId, status}: {studentId: any, status: any}) => {
-        setAttendanceData(prev => ({
+    const handleStatusChange = (studentId: number | string, status: string) => {
+        setAttendanceData((prev) => ({
             ...prev,
-            [studentId]: { ...prev[studentId], status }
+            [studentId]: { ...prev[studentId], status },
         }));
     };
 
-    const handleRemarksChange = (studentId: string | number, remarks: string) => {
-        setAttendanceData(prev => ({
+    const handleRemarksChange = (studentId: number | string, remarks: string) => {
+        setAttendanceData((prev) => ({
             ...prev,
-            [studentId]: { ...prev[studentId], remarks }
+            [studentId]: { ...prev[studentId], remarks },
         }));
     };
 
     const handleSubmit = (e: any) => {
         e.preventDefault();
         const attendance = Object.values(attendanceData);
+        console.log(attendance);
         post('/attendance', {
             class_id: data.class_id,
             date: data.date,
-            attendance: attendance
+            attendance,
         });
     };
 
     const loadClass = () => {
-        router.get('/attendance/create', {
-            class_id: data.class_id,
-            date: data.date
-        }, {
-            preserveState: true
-        });
-    };
-
-    const getStatusBadge = (status: string | number) => {
-        const badges = {
-            present: { variant: 'default', label: 'Present' },
-            absent: { variant: 'destructive', label: 'Absent' },
-            late: { variant: 'secondary', label: 'Late' },
-            excused: { variant: 'outline', label: 'Excused' }
-        };
-        return badges[status] || badges.present;
+        router.get(
+            '/attendance/create',
+            {
+                class_id: data.class_id,
+                date: data.date,
+            },
+            {
+                preserveState: true,
+            }
+        );
     };
 
     const breadcrumbs: BreadcrumbItem[] = [
         {
-            title: "Attendace",
-            href: "/attendance"
-        }
-    ]
+            title: 'Attendance',
+            href: '/attendance',
+        },
+    ];
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -109,11 +105,6 @@ export default function Create({ auth, classes, selectedClass, students, date }:
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     {/* Header */}
                     <div className="flex items-center gap-4 mb-6">
-                        <Button variant="ghost" size="icon" asChild>
-                            <Link href="/attendance">
-                                <ArrowLeft className="h-4 w-4" />
-                            </Link>
-                        </Button>
                         <div>
                             <h2 className="text-3xl font-bold tracking-tight">Mark Attendance</h2>
                             <p className="text-muted-foreground">Record student attendance for the day</p>
@@ -135,9 +126,13 @@ export default function Create({ auth, classes, selectedClass, students, date }:
                                         onChange={(e) => setData('date', e.target.value)}
                                     />
                                 </div>
+
                                 <div className="space-y-2">
                                     <Label>Class</Label>
-                                    <Select value={data.class_id.toString()} onValueChange={(value) => setData('class_id', value)}>
+                                    <Select
+                                        value={data.class_id}
+                                        onValueChange={(value) => setData('class_id', value)}
+                                    >
                                         <SelectTrigger>
                                             <SelectValue placeholder="Select class" />
                                         </SelectTrigger>
@@ -150,6 +145,7 @@ export default function Create({ auth, classes, selectedClass, students, date }:
                                         </SelectContent>
                                     </Select>
                                 </div>
+
                                 <div className="flex items-end">
                                     <Button onClick={loadClass} className="w-full">
                                         Load Students
@@ -188,7 +184,7 @@ export default function Create({ auth, classes, selectedClass, students, date }:
                                                     <TableCell>{student.full_name}</TableCell>
                                                     <TableCell>
                                                         <Select
-                                                            value={attendanceData[student.id]?.status}
+                                                            value={attendanceData[student.id]?.status ?? 'present'}
                                                             onValueChange={(value) => handleStatusChange(student.id, value)}
                                                         >
                                                             <SelectTrigger className="w-[130px]">
@@ -204,7 +200,7 @@ export default function Create({ auth, classes, selectedClass, students, date }:
                                                     </TableCell>
                                                     <TableCell>
                                                         <Input
-                                                            value={attendanceData[student.id]?.remarks || ''}
+                                                            value={attendanceData[student.id]?.remarks ?? ''}
                                                             onChange={(e) => handleRemarksChange(student.id, e.target.value)}
                                                             placeholder="Optional remarks"
                                                             className="w-[200px]"

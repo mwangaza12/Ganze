@@ -104,7 +104,7 @@ class GuardianController extends Controller
         $guardian = Guardian::with('students')->findOrFail($id);
         $students = Student::active()->get();
 
-        return Inertia::render('Guardians/Edit', [
+        return Inertia::render('Guardians/Create', [
             'guardian' => $guardian,
             'students' => $students
         ]);

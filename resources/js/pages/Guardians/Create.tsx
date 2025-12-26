@@ -1,4 +1,3 @@
-import React from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,11 +6,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ArrowLeft } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
 
-export default function GuardianCreateEdit({ auth, guardian, students }: {auth: any, guardian: any, students: any}) {
+export default function GuardianCreateEdit({ guardian, students }: {auth: any, guardian: any, students: any}) {
     const isEdit = !!guardian;
     
     const { data, setData, post, put, processing, errors } = useForm({
@@ -60,11 +58,6 @@ export default function GuardianCreateEdit({ auth, guardian, students }: {auth: 
             <div className="py-6">
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center gap-4 mb-6">
-                        <Button variant="ghost" size="icon" asChild>
-                            <Link href="/guardians">
-                                <ArrowLeft className="h-4 w-4" />
-                            </Link>
-                        </Button>
                         <div>
                             <h2 className="text-3xl font-bold tracking-tight">
                                 {isEdit ? 'Edit Guardian' : 'Add New Guardian'}

@@ -4,8 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Pencil, FileText } from 'lucide-react';
+import AppLayout from '@/layouts/app-layout';
+import { BreadcrumbItem } from '@/types';
 
-export default function Show({ auth, exam }) {
+export default function Show({ exam }: {exam: any}) {
     const getTypeBadge = (type) => {
         const badges = {
             cat: { variant: 'secondary', label: 'CAT' },
@@ -19,8 +21,15 @@ export default function Show({ auth, exam }) {
 
     const typeBadge = getTypeBadge(exam.type);
 
+    const breadcrumbs: BreadcrumbItem[] = [
+        {
+            title: "Exams",
+            href: "/exams"
+        }
+    ]
+
     return (
-        <AppLayout user={auth.user}>
+        <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={`Exam - ${exam.name}`} />
 
             <div className="py-6">
@@ -64,7 +73,7 @@ export default function Show({ auth, exam }) {
                                 <CardTitle className="text-sm font-medium">Exam Date</CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <p className="text-2xl font-bold">{exam.exam_date}</p>
+                                <p className="text-2xl font-bold">{exam.exam_date.split('T')[0]}</p>
                             </CardContent>
                         </Card>
 
@@ -128,7 +137,7 @@ export default function Show({ auth, exam }) {
                             </CardHeader>
                             <CardContent>
                                 <div className="space-y-2">
-                                    {exam.marks.slice(0, 10).map((mark) => (
+                                    {exam.marks.slice(0, 10).map((mark: any) => (
                                         <div key={mark.id} className="flex justify-between items-center p-3 border rounded-lg">
                                             <div>
                                                 <p className="font-medium">{mark.student?.full_name}</p>
