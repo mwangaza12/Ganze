@@ -5,10 +5,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { ArrowLeft } from 'lucide-react';
 
 import AppLayout from '@/layouts/app-layout';
-export default function CreateEdit({ auth, academicYear }) {
+import { BreadcrumbItem } from '@/types';
+export default function CreateEdit({ auth, academicYear }:{ auth: any; academicYear?: any}) {
     const isEdit = !!academicYear;
     
     const { data, setData, post, put, processing, errors } = useForm({
@@ -18,7 +18,7 @@ export default function CreateEdit({ auth, academicYear }) {
         is_current: academicYear?.is_current || false,
     });
 
-    const handleSubmit = (e) => {
+    const handleSubmit = (e: any) => {
         e.preventDefault();
         
         if (isEdit) {
@@ -28,18 +28,20 @@ export default function CreateEdit({ auth, academicYear }) {
         }
     };
 
+    const breadcrumbs: BreadcrumbItem[] = [
+        {
+            title: 'Academic Years',
+            href: '/academic-years'
+        }
+    ];
+
     return (
-        <AppLayout user={auth.user}>
+        <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={isEdit ? 'Edit Academic Year' : 'Add Academic Year'} />
 
             <div className="py-6">
                 <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center gap-4 mb-6">
-                        <Button variant="ghost" size="icon" asChild>
-                            <Link href="/academic-years">
-                                <ArrowLeft className="h-4 w-4" />
-                            </Link>
-                        </Button>
                         <div>
                             <h2 className="text-3xl font-bold tracking-tight">
                                 {isEdit ? 'Edit Academic Year' : 'Add Academic Year'}

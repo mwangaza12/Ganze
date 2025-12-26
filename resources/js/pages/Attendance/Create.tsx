@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Head, Link, router, useForm } from '@inertiajs/react';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -25,11 +24,11 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Check, X } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
+import { BreadcrumbItem } from '@/types';
 
-export default function Create({ auth, classes, selectedClass, students, date }:{}) {
+export default function Create({ auth, classes, selectedClass, students, date }:{auth: any, classes: any, selectedClass: any, students: any,date: any}) {
     const [attendanceData, setAttendanceData] = useState({});
     const { data, setData, post, processing, errors } = useForm({
         class_id: selectedClass?.id || '',
@@ -40,7 +39,7 @@ export default function Create({ auth, classes, selectedClass, students, date }:
     useEffect(() => {
         if (students) {
             const initialData = {};
-            students.forEach(student => {
+            students.forEach((student: any) => {
                 const existing = student.attendance?.[0];
                 initialData[student.id] = {
                     student_id: student.id,
@@ -52,21 +51,21 @@ export default function Create({ auth, classes, selectedClass, students, date }:
         }
     }, [students]);
 
-    const handleStatusChange = (studentId, status) => {
+    const handleStatusChange = ({studentId, status}: {studentId: any, status: any}) => {
         setAttendanceData(prev => ({
             ...prev,
             [studentId]: { ...prev[studentId], status }
         }));
     };
 
-    const handleRemarksChange = (studentId, remarks) => {
+    const handleRemarksChange = (studentId: string | number, remarks: string) => {
         setAttendanceData(prev => ({
             ...prev,
             [studentId]: { ...prev[studentId], remarks }
         }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = (e: any) => {
         e.preventDefault();
         const attendance = Object.values(attendanceData);
         post('/attendance', {
@@ -85,7 +84,7 @@ export default function Create({ auth, classes, selectedClass, students, date }:
         });
     };
 
-    const getStatusBadge = (status) => {
+    const getStatusBadge = (status: string | number) => {
         const badges = {
             present: { variant: 'default', label: 'Present' },
             absent: { variant: 'destructive', label: 'Absent' },
@@ -95,8 +94,15 @@ export default function Create({ auth, classes, selectedClass, students, date }:
         return badges[status] || badges.present;
     };
 
+    const breadcrumbs: BreadcrumbItem[] = [
+        {
+            title: "Attendace",
+            href: "/attendance"
+        }
+    ]
+
     return (
-        <AppLayout user={auth.user}>
+        <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Mark Attendance" />
 
             <div className="py-6">
@@ -136,7 +142,7 @@ export default function Create({ auth, classes, selectedClass, students, date }:
                                             <SelectValue placeholder="Select class" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            {classes?.map((cls) => (
+                                            {classes?.map((cls: any) => (
                                                 <SelectItem key={cls.id} value={cls.id.toString()}>
                                                     {cls.name}
                                                 </SelectItem>
@@ -174,7 +180,7 @@ export default function Create({ auth, classes, selectedClass, students, date }:
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
-                                            {students.map((student) => (
+                                            {students.map((student: any) => (
                                                 <TableRow key={student.id}>
                                                     <TableCell className="font-medium">
                                                         {student.admission_number}

@@ -5,10 +5,17 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Plus, Users, Eye, Pencil, School } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
+import { BreadcrumbItem } from '@/types';
 
-export default function Index({ auth, classes }) {
+export default function Index({ auth, classes }:{ auth: any, classes: any}) {
+    const breadcrumbs: BreadcrumbItem[] = [
+        {
+            title: "Classes",
+            href: "/classes"
+        }
+    ]
     return (
-        <AppLayout user={auth.user}>
+        <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Classes" />
 
             <div className="py-6">
@@ -27,7 +34,7 @@ export default function Index({ auth, classes }) {
                     </div>
 
                     <div className="grid gap-4 md:grid-cols-2">
-                        {classes?.map((cls) => (
+                        {classes?.map((cls: any) => (
                             <Card key={cls.id}>
                                 <CardHeader>
                                     <div className="flex items-center justify-between">
@@ -67,7 +74,7 @@ export default function Index({ auth, classes }) {
                                             <div>
                                                 <p className="text-sm text-muted-foreground mb-2">Streams:</p>
                                                 <div className="flex flex-wrap gap-2">
-                                                    {cls.streams.map((stream) => (
+                                                    {cls.streams.map((stream: any) => (
                                                         <Badge key={stream.id} variant="secondary">
                                                             {stream.name}
                                                             {stream.class_teacher && ` • ${stream.class_teacher.full_name}`}

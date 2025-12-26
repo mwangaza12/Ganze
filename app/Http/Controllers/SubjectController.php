@@ -51,7 +51,7 @@ class SubjectController extends Controller
     {
         $subject = Subject::findOrFail($id);
 
-        return Inertia::render('Subjects/Edit', [
+        return Inertia::render('Subjects/Create', [
             'subject' => $subject
         ]);
     }

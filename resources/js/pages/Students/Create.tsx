@@ -8,8 +8,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ArrowLeft } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
+import { BreadcrumbItem } from '@/types';
 
-export default function CreateEdit({ auth, student, classes, streams }) {
+export default function CreateEdit({ student, classes, streams }) {
     const isEdit = !!student;
     
     const { data, setData, post, put, processing, errors } = useForm({
@@ -53,19 +54,21 @@ export default function CreateEdit({ auth, student, classes, streams }) {
         'Homa Bay', 'Migori', 'Kisii', 'Nyamira', 'Nairobi'
     ];
 
+    const breadcrumbs: BreadcrumbItem[] = [
+        {
+            title: "Students",
+            href: "/students"
+        }
+    ]
+
     return (
-        <AppLayout user={auth.user}>
+        <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={isEdit ? 'Edit Student' : 'Add Student'} />
 
             <div className="py-6">
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                     {/* Header */}
                     <div className="flex items-center gap-4 mb-6">
-                        <Button variant="ghost" size="icon" asChild>
-                            <Link href="/students">
-                                <ArrowLeft className="h-4 w-4" />
-                            </Link>
-                        </Button>
                         <div>
                             <h2 className="text-3xl font-bold tracking-tight">
                                 {isEdit ? 'Edit Student' : 'Add New Student'}

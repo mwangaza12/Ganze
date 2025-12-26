@@ -31,7 +31,7 @@ export function NavSection({ items }: { items: NavItem[] }) {
                 hasChildren ? setOpen(isOpen ? null : item.title) : null
               }
               asChild={!hasChildren}
-              className="flex justify-between"
+              className=""
             >
               {hasChildren ? (
                 <div className="flex items-center gap-2 w-full cursor-pointer">

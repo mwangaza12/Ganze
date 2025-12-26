@@ -5,10 +5,19 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Pencil, Plus, CheckCircle } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
+import { BreadcrumbItem } from '@/types';
 
-export default function Show({ auth, academicYear }) {
+export default function Show({ auth, academicYear }: {auth: any, academicYear: any}) {
+
+    const breadcrumbs: BreadcrumbItem[] = [
+        {
+            title: "Academic Year",
+            href: "/academic-year"
+        }
+    ]
+    
     return (
-        <AppLayout user={auth.user}>
+        <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={`Academic Year - ${academicYear.year}`} />
 
             <div className="py-6">
@@ -57,7 +66,7 @@ export default function Show({ auth, academicYear }) {
                             <CardContent>
                                 {academicYear.terms && academicYear.terms.length > 0 ? (
                                     <div className="space-y-3">
-                                        {academicYear.terms.map((term) => (
+                                        {academicYear.terms.map((term: any) => (
                                             <div key={term.id} className="flex justify-between items-center p-4 border rounded-lg">
                                                 <div>
                                                     <div className="flex items-center gap-2">

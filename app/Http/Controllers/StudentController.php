@@ -152,7 +152,7 @@ class StudentController extends Controller
         $classes = ClassModel::all();
         $streams = Stream::with('class')->get();
 
-        return Inertia::render('Students/Edit', [
+        return Inertia::render('Students/Create', [
             'student' => $student,
             'classes' => $classes,
             'streams' => $streams

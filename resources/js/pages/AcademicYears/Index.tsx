@@ -5,20 +5,28 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Plus, Eye, Pencil, Trash2, CheckCircle } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
+import { BreadcrumbItem } from '@/types';
 
-export default function Index({ auth, academicYears }) {
-    const handleDelete = (id, year) => {
+export default function Index({ auth, academicYears }:{ auth: any; academicYears: any[]}) {
+    const handleDelete = ({id, year}: {id: any, year: any}) => {
         if (confirm(`Are you sure you want to delete ${year}?`)) {
             router.delete(`/academic-years/${id}`);
         }
     };
 
-    const setCurrent = (id) => {
+    const setCurrent = (id: number) => {
         router.post(`/academic-years/${id}/set-current`);
     };
 
+    const breadcrumbs: BreadcrumbItem[] = [
+        {
+            title: "Academic Years",
+            href: "/academic-years"
+        }
+    ]
+
     return (
-        <AppLayout user={auth.user}>
+        <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Academic Years" />
 
             <div className="py-6">
@@ -82,7 +90,7 @@ export default function Index({ auth, academicYears }) {
                                             <Button 
                                                 variant="outline" 
                                                 size="icon"
-                                                onClick={() => handleDelete(year.id, year.year)}
+                                                onClick={() => handleDelete(year.id)}
                                             >
                                                 <Trash2 className="h-4 w-4 text-destructive" />
                                             </Button>

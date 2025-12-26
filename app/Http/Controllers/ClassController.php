@@ -59,8 +59,8 @@ class ClassController extends Controller
     {
         $class = ClassModel::findOrFail($id);
 
-        return Inertia::render('Classes/Edit', [
-            'class' => $class
+        return Inertia::render('Classes/Create', [
+            'classItem' => $class
         ]);
     }
 

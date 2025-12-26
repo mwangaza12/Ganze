@@ -6,16 +6,24 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ArrowLeft, Plus, Pencil, Users, BookOpen, Trash2 } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
+import { BreadcrumbItem } from '@/types';
 
-export default function Show({ auth, classItem }) {
+export default function Show({ auth, classItem }: { auth: any, classItem: any}) {
     const handleDeleteStream = (streamId: any, streamName: any) => {
         if (confirm(`Are you sure you want to delete stream ${streamName}?`)) {
             router.delete(`/classes/${classItem.id}/streams/${streamId}`);
         }
     };
 
+    const breadcrumbs: BreadcrumbItem[] = [
+        {
+            title: "Class",
+            href: "/classes"
+        }
+    ]
+
     return (
-        <AppLayout user={auth.user}>
+        <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={`Class - ${classItem.name}`} />
 
             <div className="py-6">
@@ -115,7 +123,7 @@ export default function Show({ auth, classItem }) {
                                 <CardContent>
                                     {classItem.streams && classItem.streams.length > 0 ? (
                                         <div className="space-y-3">
-                                            {classItem.streams.map((stream) => (
+                                            {classItem.streams.map((stream: any) => (
                                                 <Card key={stream.id}>
                                                     <CardContent className="pt-6">
                                                         <div className="flex items-center justify-between">
@@ -167,7 +175,7 @@ export default function Show({ auth, classItem }) {
                                 <CardContent>
                                     {classItem.students && classItem.students.length > 0 ? (
                                         <div className="space-y-2">
-                                            {classItem.students.map((student) => (
+                                            {classItem.students.map((student: any) => (
                                                 <div key={student.id} className="flex items-center justify-between p-3 border rounded-lg">
                                                     <div>
                                                         <p className="font-medium">{student.full_name}</p>
@@ -202,7 +210,7 @@ export default function Show({ auth, classItem }) {
                                 <CardContent>
                                     {classItem.classSubjects && classItem.classSubjects.length > 0 ? (
                                         <div className="space-y-2">
-                                            {classItem.classSubjects.map((classSubject) => (
+                                            {classItem.classSubjects.map((classSubject: any) => (
                                                 <div key={classSubject.id} className="flex items-center justify-between p-3 border rounded-lg">
                                                     <div>
                                                         <p className="font-medium">{classSubject.subject?.name}</p>

@@ -109,7 +109,7 @@ class TeacherController extends Controller
         $teacher = Teacher::with('subjects')->findOrFail($id);
         $subjects = Subject::active()->get();
 
-        return Inertia::render('Teachers/Edit', [
+        return Inertia::render('Teachers/Create', [
             'teacher' => $teacher,
             'subjects' => $subjects
         ]);

@@ -48,28 +48,16 @@ const navGroups: NavGroup[] = [
               title: 'Students',
               href: '/students',
               icon: Users,
-              items: [
-                  { title: 'All Students', href: '/students' },
-                  { title: 'Add Student', href: '/students/create' },
-              ],
           },
           {
               title: 'Teachers',
               href: '/teachers',
               icon: GraduationCap,
-              items: [
-                  { title: 'All Teachers', href: '/teachers' },
-                  { title: 'Add Teacher', href: '/teachers/create' },
-              ],
           },
           {
               title: 'Guardians',
               href: '/guardians',
-              icon: UserCircle,
-              items: [
-                  { title: 'All Guardians', href: '/guardians' },
-                  { title: 'Add Guardian', href: '/guardians/create' },
-              ],
+              icon: UserCircle,              
           },
       ],
       title: ''
@@ -82,19 +70,11 @@ const navGroups: NavGroup[] = [
               title: 'Classes & Streams',
               href: '/classes',
               icon: School,
-              items: [
-                  { title: 'All Classes', href: '/classes' },
-                  { title: 'Add Class', href: '/classes/create' },
-              ],
           },
           {
               title: 'Subjects',
               href: '/subjects',
               icon: BookOpen,
-              items: [
-                  { title: 'All Subjects', href: '/subjects' },
-                  { title: 'Add Subject', href: '/subjects/create' },
-              ],
           },
           {
               title: 'Attendance',
@@ -109,10 +89,6 @@ const navGroups: NavGroup[] = [
               title: 'Exams & Results',
               href: '/exams',
               icon: FileText,
-              items: [
-                  { title: 'All Exams', href: '/exams' },
-                  { title: 'Add Exam', href: '/exams/create' },
-              ],
           },
       ],
       title: ''
@@ -142,10 +118,6 @@ const navGroups: NavGroup[] = [
               title: 'Events',
               href: '/events',
               icon: Calendar,
-              items: [
-                  { title: 'All Events', href: '/events' },
-                  { title: 'Add Event', href: '/events/create' },
-              ],
           },
           {
               title: 'Reports',
