@@ -1,20 +1,20 @@
 import React from 'react';
 import { Head, Link, router } from '@inertiajs/react';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Plus, BookOpen, Pencil, Trash2 } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
+import { BreadcrumbItem } from '@/types';
 
-export default function Index({ auth, subjects }) {
-    const handleDelete = (id, name) => {
+export default function Index({ subjects }: { subjects: any}) {
+    const handleDelete = ({ id, name }: { id: any; name: any; }) => {
         if (confirm(`Are you sure you want to delete ${name}?`)) {
             router.delete(`/subjects/${id}`);
         }
     };
 
-    const getCategoryBadge = (category) => {
+    const getCategoryBadge = (category: any) => {
         const badges = {
             compulsory: { variant: 'default', label: 'Compulsory' },
             science: { variant: 'secondary', label: 'Science' },
@@ -25,8 +25,15 @@ export default function Index({ auth, subjects }) {
         return badges[category] || badges.compulsory;
     };
 
+    const breadcrumbs: BreadcrumbItem[] = [
+        {
+            title: "Subjects",
+            href: "/subjects",
+        }
+    ]
+
     return (
-        <AppLayout user={auth.user}>
+        <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Subjects" />
 
             <div className="py-6">
@@ -45,7 +52,7 @@ export default function Index({ auth, subjects }) {
                     </div>
 
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                        {subjects?.map((subject) => {
+                        {subjects?.map((subject: any) => {
                             const categoryBadge = getCategoryBadge(subject.category);
                             return (
                                 <Card key={subject.id}>
@@ -65,7 +72,7 @@ export default function Index({ auth, subjects }) {
                                             <div className="mb-3">
                                                 <p className="text-sm text-muted-foreground mb-1">Teachers:</p>
                                                 <div className="flex flex-wrap gap-1">
-                                                    {subject.teachers.map((teacher) => (
+                                                    {subject.teachers.map((teacher: any) => (
                                                         <Badge key={teacher.id} variant="outline" className="text-xs">
                                                             {teacher.full_name}
                                                         </Badge>

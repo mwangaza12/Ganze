@@ -1,4 +1,3 @@
-import React from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,13 +5,13 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { ArrowLeft } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
 
-export default function CreateEdit({ student, classes, streams }) {
+export default function CreateEdit({ student, classes, streams }:{ student: any, classes: any, streams: any}) {
     const isEdit = !!student;
     
+    console.log(student)
     const { data, setData, post, put, processing, errors } = useForm({
         admission_number: student?.admission_number || '',
         first_name: student?.first_name || '',
@@ -34,7 +33,7 @@ export default function CreateEdit({ student, classes, streams }) {
         status: student?.status || 'active',
     });
 
-    const handleSubmit = (e) => {
+    const handleSubmit = (e: any) => {
         e.preventDefault();
         
         if (isEdit) {
@@ -178,7 +177,7 @@ export default function CreateEdit({ student, classes, streams }) {
                                         <Input
                                             id="date_of_birth"
                                             type="date"
-                                            value={data.date_of_birth}
+                                            value={data.date_of_birth.split('T')[0]}
                                             onChange={(e) => setData('date_of_birth', e.target.value)}
                                             required
                                         />
@@ -217,7 +216,7 @@ export default function CreateEdit({ student, classes, streams }) {
                                         <Input
                                             id="admission_date"
                                             type="date"
-                                            value={data.admission_date}
+                                            value={data.admission_date.split('T')[0]}
                                             onChange={(e) => setData('admission_date', e.target.value)}
                                             required
                                         />
@@ -236,7 +235,7 @@ export default function CreateEdit({ student, classes, streams }) {
                                                 <SelectValue placeholder="Select class" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                {classes?.map((cls) => (
+                                                {classes?.map((cls: any) => (
                                                     <SelectItem key={cls.id} value={cls.id.toString()}>
                                                         {cls.name}
                                                     </SelectItem>
@@ -260,7 +259,7 @@ export default function CreateEdit({ student, classes, streams }) {
                                                 <SelectValue placeholder="Select stream" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                {streams?.filter(s => s.class_id.toString() === data.class_id).map((stream) => (
+                                                {streams?.filter((s: any) => s.class_id.toString() === data.class_id).map((stream: any) => (
                                                     <SelectItem key={stream.id} value={stream.id.toString()}>
                                                         {stream.name}
                                                     </SelectItem>
