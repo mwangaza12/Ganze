@@ -6,8 +6,9 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Plus, Search, Eye, Pencil, Phone, Mail } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
+import { BreadcrumbItem } from '@/types';
 
-export default function Index({ auth, guardians, filters }) {
+export default function Index({ guardians, filters }:{ guardians: any, filters: any}) {
     const [search, setSearch] = useState(filters.search || '');
 
     const handleFilter = () => {
@@ -17,8 +18,15 @@ export default function Index({ auth, guardians, filters }) {
         });
     };
 
+    const breadcrumbs: BreadcrumbItem[] = [
+        {
+            title: "Guardians",
+            href: "/Guardians"
+        }
+    ]
+
     return (
-        <AppLayout user={auth.user}>
+        <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Guardians" />
 
             <div className="py-6">
@@ -55,7 +63,7 @@ export default function Index({ auth, guardians, filters }) {
                     </Card>
 
                     <div className="grid gap-4">
-                        {guardians.data.map((guardian) => (
+                        {guardians.data.map((guardian: any) => (
                             <Card key={guardian.id}>
                                 <CardContent className="pt-6">
                                     <div className="flex items-center justify-between">
@@ -82,7 +90,7 @@ export default function Index({ auth, guardians, filters }) {
                                             {guardian.students && guardian.students.length > 0 && (
                                                 <div className="mt-2">
                                                     <p className="text-sm text-muted-foreground">
-                                                        Students: {guardian.students.map(s => s.full_name).join(', ')}
+                                                        Students: {guardian.students.map((s: any )=> s.full_name).join(', ')}
                                                     </p>
                                                 </div>
                                             )}
