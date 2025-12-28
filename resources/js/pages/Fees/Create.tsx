@@ -1,6 +1,5 @@
 import React from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,8 +8,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ArrowLeft } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
+import { BreadcrumbItem } from '@/types';
 
-export default function Create({ auth, academicYears, terms, classes }) {
+export default function Create({ academicYears, terms, classes }: {academicYears: any, terms: any, classes: any}) {
     const { data, setData, post, processing, errors } = useForm({
         academic_year_id: '',
         term_id: '',
@@ -20,13 +20,20 @@ export default function Create({ auth, academicYears, terms, classes }) {
         description: '',
     });
 
-    const handleSubmit = (e) => {
+    const handleSubmit = (e: any) => {
         e.preventDefault();
         post('/fees');
     };
 
+    const breadcrumbs: BreadcrumbItem[] = [
+        {
+            title: "Fees",
+            href: "/feed"
+        }
+    ]
+
     return (
-        <AppLayout user={auth.user}>
+        <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Add Fee Structure" />
 
             <div className="py-6">
@@ -60,7 +67,7 @@ export default function Create({ auth, academicYears, terms, classes }) {
                                                 <SelectValue placeholder="Select academic year" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                {academicYears?.map((year) => (
+                                                {academicYears?.map((year: any) => (
                                                     <SelectItem key={year.id} value={year.id.toString()}>
                                                         {year.year}
                                                     </SelectItem>
@@ -79,7 +86,7 @@ export default function Create({ auth, academicYears, terms, classes }) {
                                                 <SelectValue placeholder="Select term" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                {terms?.map((term) => (
+                                                {terms?.map((term: any) => (
                                                     <SelectItem key={term.id} value={term.id.toString()}>
                                                         {term.name}
                                                     </SelectItem>
@@ -98,7 +105,7 @@ export default function Create({ auth, academicYears, terms, classes }) {
                                                 <SelectValue placeholder="Select class" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                {classes?.map((cls) => (
+                                                {classes?.map((cls: any) => (
                                                     <SelectItem key={cls.id} value={cls.id.toString()}>
                                                         {cls.name}
                                                     </SelectItem>

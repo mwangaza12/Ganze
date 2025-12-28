@@ -7,7 +7,7 @@ import { Plus, Eye, Pencil, Trash2 } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
 
-function FeesIndex({ auth, feeStructures, terms, classes, filters }) {
+function FeesIndex({ feeStructures, terms, classes, filters }:{feeStructures: any, terms: any, classes: any, filters: any}) {
     const [termId, setTermId] = React.useState(filters.term_id ?? 'all');
     const [classId, setClassId] = React.useState(filters.class_id ?? 'all');
 
@@ -58,7 +58,7 @@ function FeesIndex({ auth, feeStructures, terms, classes, filters }) {
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="all">All Terms</SelectItem>
-                                        {terms?.map((term) => (
+                                        {terms?.map((term: any) => (
                                             <SelectItem key={term.id} value={term.id.toString()}>
                                                 {term.name} - {term.academic_year?.year}
                                             </SelectItem>
@@ -72,7 +72,7 @@ function FeesIndex({ auth, feeStructures, terms, classes, filters }) {
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="all">All Classes</SelectItem>
-                                        {classes?.map((cls) => (
+                                        {classes?.map((cls: any) => (
                                             <SelectItem key={cls.id} value={cls.id.toString()}>
                                                 {cls.name}
                                             </SelectItem>
@@ -86,7 +86,7 @@ function FeesIndex({ auth, feeStructures, terms, classes, filters }) {
                     </Card>
 
                     <div className="grid gap-4">
-                        {feeStructures?.map((fee) => (
+                        {feeStructures?.map((fee: any) => (
                             <Card key={fee.id}>
                                 <CardContent className="pt-6">
                                     <div className="flex items-center justify-between">

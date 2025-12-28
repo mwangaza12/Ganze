@@ -8,8 +8,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
+import { BreadcrumbItem } from '@/types';
 
-export default function EventCreateEdit({ auth, event, classes }) {
+export default function EventCreateEdit({ event, classes }: { event: any, classes: any}) {
     const isEdit = !!event;
     
     const { data, setData, post, put, processing, errors } = useForm({
@@ -23,7 +24,7 @@ export default function EventCreateEdit({ auth, event, classes }) {
         class_id: event?.class_id?.toString() || '',
     });
 
-    const handleSubmit = (e) => {
+    const handleSubmit = (e: any) => {
         e.preventDefault();
         
         if (isEdit) {
@@ -33,8 +34,15 @@ export default function EventCreateEdit({ auth, event, classes }) {
         }
     };
 
+    const breadcrumbs: BreadcrumbItem[] = [
+        {
+            title: "Events",
+            href: "/events"
+        }
+    ]
+
     return (
-        <AppLayout user={auth.user}>
+        <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={isEdit ? 'Edit Event' : 'Add Event'} />
 
             <div className="py-6">
@@ -164,7 +172,7 @@ export default function EventCreateEdit({ auth, event, classes }) {
                                             <SelectValue placeholder="Select class" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            {classes?.map((cls) => (
+                                            {classes?.map((cls: any) => (
                                                 <SelectItem key={cls.id} value={cls.id.toString()}>
                                                     {cls.name}
                                                 </SelectItem>

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -8,7 +7,7 @@ import { ArrowLeft, Plus, Pencil, Users, BookOpen, Trash2 } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
 
-export default function Show({ auth, classItem }: { auth: any, classItem: any}) {
+export default function Show({ classItem }: { classItem: any}) {
     const handleDeleteStream = (streamId: any, streamName: any) => {
         if (confirm(`Are you sure you want to delete stream ${streamName}?`)) {
             router.delete(`/classes/${classItem.id}/streams/${streamId}`);

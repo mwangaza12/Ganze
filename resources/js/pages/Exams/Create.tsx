@@ -8,8 +8,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ArrowLeft } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
+import { BreadcrumbItem } from '@/types';
 
-export default function Create({ auth, terms, classes }) {
+export default function Create({ terms, classes }: { terms: any, classes: any}) {
     const { data, setData, post, processing, errors } = useForm({
         term_id: '',
         class_id: '',
@@ -20,13 +21,20 @@ export default function Create({ auth, terms, classes }) {
         description: '',
     });
 
-    const handleSubmit = (e) => {
+    const handleSubmit = (e: any) => {
         e.preventDefault();
         post('/exams');
     };
 
+    const breadcrumbs: BreadcrumbItem[] = [
+        {
+            title: "Exams",
+            href: "/exams"
+        }
+    ]
+
     return (
-        <AppLayout user={auth.user}>
+        <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Add Exam" />
 
             <div className="py-6">
@@ -60,7 +68,7 @@ export default function Create({ auth, terms, classes }) {
                                                 <SelectValue placeholder="Select term" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                {terms?.map((term) => (
+                                                {terms?.map((term: any) => (
                                                     <SelectItem key={term.id} value={term.id.toString()}>
                                                         {term.name} - {term.academic_year?.year}
                                                     </SelectItem>
@@ -79,7 +87,7 @@ export default function Create({ auth, terms, classes }) {
                                                 <SelectValue placeholder="Select class" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                {classes?.map((cls) => (
+                                                {classes?.map((cls: any) => (
                                                     <SelectItem key={cls.id} value={cls.id.toString()}>
                                                         {cls.name}
                                                     </SelectItem>

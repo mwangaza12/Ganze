@@ -1,13 +1,18 @@
-import React from "react";
 import { Head } from "@inertiajs/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import AppLayout from "@/layouts/app-layout";
+import { BreadcrumbItem } from "@/types";
 
-export default function Show({ stream }) {
+export default function Show({ stream }: { stream: any}) {
+    const breadcrumbs: BreadcrumbItem[] = [
+        {
+            title: "Streams",
+            href: "/streams"
+        }
+    ]
     return (
-        <AppLayout user={stream.class_teacher}>
+        <AppLayout breadcrumbs={breadcrumbs}>
         <Head title={`Stream: ${stream?.name ?? "Details"}`} />
 
         <div className="p-6 max-w-6xl mx-auto space-y-6">
@@ -88,7 +93,7 @@ export default function Show({ stream }) {
             <CardContent>
                 {stream.students?.length > 0 ? (
                 <div className="flex flex-wrap gap-2">
-                    {stream.students.map((student) => (
+                    {stream.students.map((student: any) => (
                     <Badge key={student.id} variant="secondary">
                         {student.name}
                     </Badge>
