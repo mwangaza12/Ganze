@@ -3,21 +3,21 @@ import { Head, Link, router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Save } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
+import { BreadcrumbItem } from '@/types';
 
-export default function EnterMarks({ auth, exam, students, subjects, existingMarks }) {
+export default function EnterMarks({ exam, students, subjects, existingMarks }: { exam: any, students: any, subjects: any, existingMarks: any}) {
     const [marks, setMarks] = useState({});
     const [processing, setProcessing] = useState(false);
 
     // Initialize marks from existing data
     React.useEffect(() => {
         const initialMarks = {};
-        students?.forEach(student => {
-            subjects?.forEach(subject => {
+        students?.forEach((student: any) => {
+            subjects?.forEach((subject: any) => {
                 const key = `${student.id}-${subject.id}`;
                 const existing = existingMarks?.[student.id]?.find(m => m.subject_id === subject.id);
                 initialMarks[key] = {
@@ -32,7 +32,7 @@ export default function EnterMarks({ auth, exam, students, subjects, existingMar
         setMarks(initialMarks);
     }, [students, subjects, existingMarks, exam.total_marks]);
 
-    const handleMarksChange = (studentId, subjectId, field, value) => {
+    const handleMarksChange = ({studentId, subjectId, field, value}: {studentId: number, subjectId: number, field: any, value: any}) => {
         const key = `${studentId}-${subjectId}`;
         setMarks(prev => ({
             ...prev,
@@ -40,7 +40,7 @@ export default function EnterMarks({ auth, exam, students, subjects, existingMar
         }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = (e: any) => {
         e.preventDefault();
         setProcessing(true);
 
@@ -53,7 +53,7 @@ export default function EnterMarks({ auth, exam, students, subjects, existingMar
         });
     };
 
-    const calculateGrade = (obtained, total) => {
+    const calculateGrade = ({obtained, total}: {obtained: any, total: any}) => {
         if (!obtained || !total) return '';
         const percentage = (parseFloat(obtained) / parseFloat(total)) * 100;
         if (percentage >= 80) return 'A';
@@ -70,8 +70,14 @@ export default function EnterMarks({ auth, exam, students, subjects, existingMar
         return 'E';
     };
 
+    const breadcrumbs: BreadcrumbItem[] = [
+        {
+            title: "Exams",
+            href: "/exams",
+        }
+    ]
     return (
-        <AppLayout user={auth.user}>
+        <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={`Enter Marks - ${exam.name}`} />
 
             <div className="py-6">
@@ -102,7 +108,7 @@ export default function EnterMarks({ auth, exam, students, subjects, existingMar
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-6">
-                                {students?.map((student) => (
+                                {students?.map((student: any) => (
                                     <Card key={student.id}>
                                         <CardHeader>
                                             <div className="flex justify-between items-center">
@@ -116,7 +122,7 @@ export default function EnterMarks({ auth, exam, students, subjects, existingMar
                                         </CardHeader>
                                         <CardContent>
                                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                                {subjects?.map((subject) => {
+                                                {subjects?.map((subject: any) => {
                                                     const key = `${student.id}-${subject.id}`;
                                                     const mark = marks[key];
                                                     const grade = calculateGrade(mark?.marks_obtained, mark?.total_marks);
