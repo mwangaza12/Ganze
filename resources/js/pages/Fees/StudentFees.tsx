@@ -4,9 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Plus, DollarSign, TrendingUp, AlertCircle } from 'lucide-react';
+import AppLayout from '@/layouts/app-layout';
+import { BreadcrumbItem } from '@/types';
 
-export default function StudentFees({ auth, student, fees, summary }) {
-    const getStatusVariant = (status) => {
+export default function StudentFees({ student, fees, summary }:{ student: any, fees: any, summary: any}) {
+    const getStatusVariant = (status: any) => {
         const variants = {
             paid: 'default',
             partial: 'secondary',
@@ -16,8 +18,15 @@ export default function StudentFees({ auth, student, fees, summary }) {
         return variants[status] || 'outline';
     };
 
+    const breadcrumbs: BreadcrumbItem[] = [
+        {
+            title: "Fees",
+            href: "/fees"
+        }
+    ]
+
     return (
-        <AppLayout user={auth.user}>
+        <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={`Fees - ${student.full_name}`} />
 
             <div className="py-6">
@@ -90,7 +99,7 @@ export default function StudentFees({ auth, student, fees, summary }) {
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-3">
-                                {fees?.map((fee) => (
+                                {fees?.map((fee: any) => (
                                     <div key={fee.id} className="flex justify-between items-center p-4 border rounded-lg">
                                         <div className="flex-1">
                                             <div className="flex items-center gap-2 mb-1">

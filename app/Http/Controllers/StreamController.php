@@ -61,7 +61,7 @@ class StreamController extends Controller
         $class = ClassModel::findOrFail($classId);
         $teachers = Teacher::all();
 
-        return Inertia::render('Classes/Streams/Edit', [
+        return Inertia::render('Classes/Streams/Editbr', [
             'stream' => $stream,
             'class' => $class,
             'teachers' => $teachers
