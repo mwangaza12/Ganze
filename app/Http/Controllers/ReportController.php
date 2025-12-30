@@ -41,7 +41,7 @@ class ReportController extends Controller
         });
 
         return Inertia::render('Reports/AttendanceByClass', [
-            'class' => $class,
+            'classData' => $class,
             'report' => $report,
             'startDate' => $startDate,
             'endDate' => $endDate
