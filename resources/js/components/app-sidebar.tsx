@@ -126,6 +126,7 @@ const navGroups: NavGroup[] = [
               items: [
                   { title: 'Attendance Report', href: '/reports/attendance' },
                   { title: 'Academic Report', href: '/reports/academic' },
+                  { title: 'Fee Report', href: '/reports/fees/summary' },
               ],
           },
       ],
