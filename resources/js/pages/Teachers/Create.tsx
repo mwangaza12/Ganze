@@ -301,7 +301,7 @@ export default function CreateEdit({ teacher, subjects }: { teacher: any, subjec
                             </CardHeader>
                             <CardContent>
                                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                    {subjects?.map((subject) => (
+                                    {subjects?.map((subject: any) => (
                                         <div key={subject.id} className="flex items-center space-x-2">
                                             <Checkbox
                                                 id={`subject-${subject.id}`}

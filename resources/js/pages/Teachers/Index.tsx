@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Plus, Search, Eye, Pencil, Trash2, Mail, Phone } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
+import { BreadcrumbItem } from '@/types';
 
-export default function Index({ auth, teachers, filters }) {
+export default function Index({ teachers, filters }:{ teachers: any; filters: any; }) {
     const [search, setSearch] = useState(filters.search || '');
 
     const handleFilter = () => {
@@ -18,14 +18,21 @@ export default function Index({ auth, teachers, filters }) {
         });
     };
 
-    const handleDelete = (id, name) => {
+    const handleDelete = ({ id, name }: { id: any; name: string; }, full_name: any) => {
         if (confirm(`Are you sure you want to delete ${name}?`)) {
             router.delete(`/teachers/${id}`);
         }
     };
 
+    const breadcrumbs: BreadcrumbItem[] = [
+        {
+            title: 'Teachers',
+            href: '/teachers',
+        },
+    ];
+
     return (
-        <AppLayout user={auth.user}>
+        <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Teachers" />
 
             <div className="py-6">
@@ -62,7 +69,7 @@ export default function Index({ auth, teachers, filters }) {
                     </Card>
 
                     <div className="grid gap-4">
-                        {teachers.data.map((teacher) => (
+                        {teachers.data.map((teacher: any) => (
                             <Card key={teacher.id}>
                                 <CardContent className="pt-6">
                                     <div className="flex items-center justify-between">
@@ -89,7 +96,7 @@ export default function Index({ auth, teachers, filters }) {
                                                 </div>
                                                 {teacher.subjects && teacher.subjects.length > 0 && (
                                                     <div className="flex gap-1 mt-2">
-                                                        {teacher.subjects.map((subject) => (
+                                                        {teacher.subjects.map((subject: any) => (
                                                             <Badge key={subject.id} variant="outline">
                                                                 {subject.name}
                                                             </Badge>
@@ -125,7 +132,7 @@ export default function Index({ auth, teachers, filters }) {
                                 Showing {teachers.from} to {teachers.to} of {teachers.total} results
                             </div>
                             <div className="flex gap-1">
-                                {teachers.links.map((link, index) => (
+                                {teachers.links.map(({link, index}:{link: any, index: any}) => (
                                     <Button
                                         key={index}
                                         variant={link.active ? "default" : "outline"}
