@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Search, Plus, Eye, Pencil, Trash2, RotateCcw } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
@@ -154,48 +155,62 @@ export default function Index({ auth, students, filters, classes, streams }) {
                     </Card>
 
                     <Card>
-                        <CardContent className="p-6">
-                            <div className="space-y-3">
-                                {students.data.length === 0 ? (
-                                    <p className="text-center py-8 text-muted-foreground">No students found</p>
-                                ) : (
-                                    students.data.map((student) => (
-                                        <div key={student.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent">
-                                            <div className="flex-1">
-                                                <div className="flex items-center gap-3 mb-1">
-                                                    <span className="font-semibold">{student.admission_number}</span>
-                                                    <span className="font-medium">{student.full_name}</span>
+                        <CardContent className="p-0">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Admission #</TableHead>
+                                        <TableHead>Name</TableHead>
+                                        <TableHead>Gender</TableHead>
+                                        <TableHead>Class</TableHead>
+                                        <TableHead>Stream</TableHead>
+                                        <TableHead>Status</TableHead>
+                                        <TableHead className="text-right">Actions</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {students.data.length === 0 ? (
+                                        <TableRow>
+                                            <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                                                No students found
+                                            </TableCell>
+                                        </TableRow>
+                                    ) : (
+                                        students.data.map((student) => (
+                                            <TableRow key={student.id}>
+                                                <TableCell className="font-semibold">{student.admission_number}</TableCell>
+                                                <TableCell className="font-medium">{student.full_name}</TableCell>
+                                                <TableCell className="capitalize text-muted-foreground">{student.gender}</TableCell>
+                                                <TableCell>{student.class?.name}</TableCell>
+                                                <TableCell className="text-muted-foreground">{student.stream?.name || '—'}</TableCell>
+                                                <TableCell>
                                                     <Badge variant={getStatusVariant(student.status)}>{student.status}</Badge>
-                                                </div>
-                                                <div className="text-sm text-muted-foreground">
-                                                    <span className="capitalize">{student.gender}</span>
-                                                    <span className="mx-2">•</span>
-                                                    <span>{student.class?.name}</span>
-                                                    {student.stream && <span> - {student.stream.name}</span>}
-                                                </div>
-                                            </div>
-                                            <div className="flex gap-2">
-                                                <Button variant="ghost" size="icon" asChild>
-                                                    <Link href={`/students/${student.id}`}>
-                                                        <Eye className="h-4 w-4" />
-                                                    </Link>
-                                                </Button>
-                                                <Button variant="ghost" size="icon" asChild>
-                                                    <Link href={`/students/${student.id}/edit`}>
-                                                        <Pencil className="h-4 w-4" />
-                                                    </Link>
-                                                </Button>
-                                                <Button variant="ghost" size="icon" onClick={() => confirmDelete(student)}>
-                                                    <Trash2 className="h-4 w-4 text-destructive" />
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    ))
-                                )}
-                            </div>
+                                                </TableCell>
+                                                <TableCell className="text-right">
+                                                    <div className="flex justify-end gap-1">
+                                                        <Button variant="ghost" size="icon" asChild>
+                                                            <Link href={`/students/${student.id}`}>
+                                                                <Eye className="h-4 w-4" />
+                                                            </Link>
+                                                        </Button>
+                                                        <Button variant="ghost" size="icon" asChild>
+                                                            <Link href={`/students/${student.id}/edit`}>
+                                                                <Pencil className="h-4 w-4" />
+                                                            </Link>
+                                                        </Button>
+                                                        <Button variant="ghost" size="icon" onClick={() => confirmDelete(student)}>
+                                                            <Trash2 className="h-4 w-4 text-destructive" />
+                                                        </Button>
+                                                    </div>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))
+                                    )}
+                                </TableBody>
+                            </Table>
 
                             {students.links && students.links.length > 3 && (
-                                <div className="flex justify-between items-center mt-6 pt-4 border-t">
+                                <div className="flex justify-between items-center px-6 py-4 border-t">
                                     <div className="text-sm text-muted-foreground">
                                         Showing <span className="font-medium">{students.from}</span> to{' '}
                                         <span className="font-medium">{students.to}</span> of{' '}
