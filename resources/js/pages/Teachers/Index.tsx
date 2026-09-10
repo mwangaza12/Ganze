@@ -3,8 +3,9 @@ import { Head, Link, router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Plus, Search, Eye, Pencil, Trash2, Mail, Phone } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Plus, Search, Eye, Pencil, Trash2 } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
 
@@ -18,7 +19,7 @@ export default function Index({ teachers, filters }:{ teachers: any; filters: an
         });
     };
 
-    const handleDelete = ({ id, name }: { id: any; name: string; }, full_name: any) => {
+    const handleDelete = (id: any, name: string) => {
         if (confirm(`Are you sure you want to delete ${name}?`)) {
             router.delete(`/teachers/${id}`);
         }
@@ -68,83 +69,99 @@ export default function Index({ teachers, filters }:{ teachers: any; filters: an
                         </CardContent>
                     </Card>
 
-                    <div className="grid gap-4">
-                        {teachers.data.map((teacher: any) => (
-                            <Card key={teacher.id}>
-                                <CardContent className="pt-6">
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-4">
-                                            <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                                                <span className="text-lg font-semibold text-primary">
-                                                    {teacher.first_name.charAt(0)}{teacher.last_name.charAt(0)}
-                                                </span>
-                                            </div>
-                                            <div className="flex-1">
-                                                <h3 className="font-semibold text-lg">{teacher.full_name}</h3>
-                                                <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
-                                                    <span>TSC: {teacher.tsc_number}</span>
-                                                    <span className="flex items-center gap-1">
-                                                        <Phone className="h-3 w-3" />
-                                                        {teacher.phone}
-                                                    </span>
-                                                    {teacher.user?.email && (
-                                                        <span className="flex items-center gap-1">
-                                                            <Mail className="h-3 w-3" />
-                                                            {teacher.user.email}
-                                                        </span>
-                                                    )}
-                                                </div>
-                                                {teacher.subjects && teacher.subjects.length > 0 && (
-                                                    <div className="flex gap-1 mt-2">
-                                                        {teacher.subjects.map((subject: any) => (
-                                                            <Badge key={subject.id} variant="outline">
-                                                                {subject.name}
-                                                            </Badge>
-                                                        ))}
+                    <Card>
+                        <CardContent className="p-0">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Teacher</TableHead>
+                                        <TableHead>TSC Number</TableHead>
+                                        <TableHead>Phone</TableHead>
+                                        <TableHead>Email</TableHead>
+                                        <TableHead>Subjects</TableHead>
+                                        <TableHead className="text-right">Actions</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {teachers.data.length === 0 ? (
+                                        <TableRow>
+                                            <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                                                No teachers found
+                                            </TableCell>
+                                        </TableRow>
+                                    ) : (
+                                        teachers.data.map((teacher: any) => (
+                                            <TableRow key={teacher.id}>
+                                                <TableCell>
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="h-9 w-9 shrink-0 rounded-full bg-primary/10 flex items-center justify-center">
+                                                            <span className="text-sm font-semibold text-primary">
+                                                                {teacher.first_name.charAt(0)}{teacher.last_name.charAt(0)}
+                                                            </span>
+                                                        </div>
+                                                        <span className="font-medium">{teacher.full_name}</span>
                                                     </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                        <div className="flex gap-2">
-                                            <Button variant="outline" size="icon" asChild>
-                                                <Link href={`/teachers/${teacher.id}`}>
-                                                    <Eye className="h-4 w-4" />
-                                                </Link>
-                                            </Button>
-                                            <Button variant="outline" size="icon" asChild>
-                                                <Link href={`/teachers/${teacher.id}/edit`}>
-                                                    <Pencil className="h-4 w-4" />
-                                                </Link>
-                                            </Button>
-                                            <Button variant="outline" size="icon" onClick={() => handleDelete(teacher.id, teacher.full_name)}>
-                                                <Trash2 className="h-4 w-4 text-destructive" />
-                                            </Button>
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        ))}
-                    </div>
+                                                </TableCell>
+                                                <TableCell className="text-muted-foreground">{teacher.tsc_number}</TableCell>
+                                                <TableCell className="text-muted-foreground">{teacher.phone}</TableCell>
+                                                <TableCell className="text-muted-foreground">{teacher.user?.email || '—'}</TableCell>
+                                                <TableCell>
+                                                    {teacher.subjects && teacher.subjects.length > 0 ? (
+                                                        <div className="flex flex-wrap gap-1">
+                                                            {teacher.subjects.map((subject: any) => (
+                                                                <Badge key={subject.id} variant="outline">
+                                                                    {subject.name}
+                                                                </Badge>
+                                                            ))}
+                                                        </div>
+                                                    ) : (
+                                                        <span className="text-muted-foreground">—</span>
+                                                    )}
+                                                </TableCell>
+                                                <TableCell className="text-right">
+                                                    <div className="flex justify-end gap-1">
+                                                        <Button variant="ghost" size="icon" asChild>
+                                                            <Link href={`/teachers/${teacher.id}`}>
+                                                                <Eye className="h-4 w-4" />
+                                                            </Link>
+                                                        </Button>
+                                                        <Button variant="ghost" size="icon" asChild>
+                                                            <Link href={`/teachers/${teacher.id}/edit`}>
+                                                                <Pencil className="h-4 w-4" />
+                                                            </Link>
+                                                        </Button>
+                                                        <Button variant="ghost" size="icon" onClick={() => handleDelete(teacher.id, teacher.full_name)}>
+                                                            <Trash2 className="h-4 w-4 text-destructive" />
+                                                        </Button>
+                                                    </div>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))
+                                    )}
+                                </TableBody>
+                            </Table>
 
-                    {teachers.links && teachers.links.length > 3 && (
-                        <div className="flex justify-between items-center mt-6">
-                            <div className="text-sm text-muted-foreground">
-                                Showing {teachers.from} to {teachers.to} of {teachers.total} results
-                            </div>
-                            <div className="flex gap-1">
-                                {teachers.links.map(({link, index}:{link: any, index: any}) => (
-                                    <Button
-                                        key={index}
-                                        variant={link.active ? "default" : "outline"}
-                                        size="sm"
-                                        onClick={() => link.url && router.get(link.url)}
-                                        disabled={!link.url}
-                                        dangerouslySetInnerHTML={{ __html: link.label }}
-                                    />
-                                ))}
-                            </div>
-                        </div>
-                    )}
+                            {teachers.links && teachers.links.length > 3 && (
+                                <div className="flex justify-between items-center px-6 py-4 border-t">
+                                    <div className="text-sm text-muted-foreground">
+                                        Showing {teachers.from} to {teachers.to} of {teachers.total} results
+                                    </div>
+                                    <div className="flex gap-1">
+                                        {teachers.links.map((link: any, index: number) => (
+                                            <Button
+                                                key={index}
+                                                variant={link.active ? "default" : "outline"}
+                                                size="sm"
+                                                onClick={() => link.url && router.get(link.url)}
+                                                disabled={!link.url}
+                                                dangerouslySetInnerHTML={{ __html: link.label }}
+                                            />
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
                 </div>
             </div>
         </AppLayout>

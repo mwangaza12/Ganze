@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Plus, Search, Eye, Pencil, Phone, Mail } from 'lucide-react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Plus, Search, Eye, Pencil } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
 
@@ -62,56 +63,65 @@ export default function Index({ guardians, filters }:{ guardians: any, filters: 
                         </CardContent>
                     </Card>
 
-                    <div className="grid gap-4">
-                        {guardians.data.map((guardian: any) => (
-                            <Card key={guardian.id}>
-                                <CardContent className="pt-6">
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex-1">
-                                            <div className="flex items-center gap-2 mb-2">
-                                                <h3 className="font-semibold text-lg">{guardian.full_name}</h3>
-                                                <Badge variant="outline" className="capitalize">
-                                                    {guardian.relationship}
-                                                </Badge>
-                                            </div>
-                                            <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                                                <span>ID: {guardian.id_number}</span>
-                                                <span className="flex items-center gap-1">
-                                                    <Phone className="h-3 w-3" />
-                                                    {guardian.phone}
-                                                </span>
-                                                {guardian.email && (
-                                                    <span className="flex items-center gap-1">
-                                                        <Mail className="h-3 w-3" />
-                                                        {guardian.email}
-                                                    </span>
-                                                )}
-                                            </div>
-                                            {guardian.students && guardian.students.length > 0 && (
-                                                <div className="mt-2">
-                                                    <p className="text-sm text-muted-foreground">
-                                                        Students: {guardian.students.map((s: any )=> s.full_name).join(', ')}
-                                                    </p>
-                                                </div>
-                                            )}
-                                        </div>
-                                        <div className="flex gap-2">
-                                            <Button variant="outline" size="icon" asChild>
-                                                <Link href={`/guardians/${guardian.id}`}>
-                                                    <Eye className="h-4 w-4" />
-                                                </Link>
-                                            </Button>
-                                            <Button variant="outline" size="icon" asChild>
-                                                <Link href={`/guardians/${guardian.id}/edit`}>
-                                                    <Pencil className="h-4 w-4" />
-                                                </Link>
-                                            </Button>
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        ))}
-                    </div>
+                    <Card>
+                        <CardContent className="p-0">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Name</TableHead>
+                                        <TableHead>Relationship</TableHead>
+                                        <TableHead>ID Number</TableHead>
+                                        <TableHead>Phone</TableHead>
+                                        <TableHead>Email</TableHead>
+                                        <TableHead>Students</TableHead>
+                                        <TableHead className="text-right">Actions</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {guardians.data.length === 0 ? (
+                                        <TableRow>
+                                            <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                                                No guardians found
+                                            </TableCell>
+                                        </TableRow>
+                                    ) : (
+                                        guardians.data.map((guardian: any) => (
+                                            <TableRow key={guardian.id}>
+                                                <TableCell className="font-medium">{guardian.full_name}</TableCell>
+                                                <TableCell>
+                                                    <Badge variant="outline" className="capitalize">
+                                                        {guardian.relationship}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell className="text-muted-foreground">{guardian.id_number}</TableCell>
+                                                <TableCell className="text-muted-foreground">{guardian.phone}</TableCell>
+                                                <TableCell className="text-muted-foreground">{guardian.email || '—'}</TableCell>
+                                                <TableCell className="text-muted-foreground">
+                                                    {guardian.students && guardian.students.length > 0
+                                                        ? guardian.students.map((s: any) => s.full_name).join(', ')
+                                                        : '—'}
+                                                </TableCell>
+                                                <TableCell className="text-right">
+                                                    <div className="flex justify-end gap-1">
+                                                        <Button variant="ghost" size="icon" asChild>
+                                                            <Link href={`/guardians/${guardian.id}`}>
+                                                                <Eye className="h-4 w-4" />
+                                                            </Link>
+                                                        </Button>
+                                                        <Button variant="ghost" size="icon" asChild>
+                                                            <Link href={`/guardians/${guardian.id}/edit`}>
+                                                                <Pencil className="h-4 w-4" />
+                                                            </Link>
+                                                        </Button>
+                                                    </div>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </CardContent>
+                    </Card>
                 </div>
             </div>
         </AppLayout>
