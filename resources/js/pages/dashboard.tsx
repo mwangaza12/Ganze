@@ -426,11 +426,21 @@ export default function Dashboard({ auth, stats, role }: { auth: any; stats: any
                             Welcome back, {auth.user.name}!
                         </p>
                     </div>
-                    {renderAdminDashboard()}
-                    {/* {role === 'admin' || role === 'principal' ? renderAdminDashboard() : null}
-                    {role === 'teacher' ? renderTeacherDashboard() : null}
-                    {role === 'parent' ? renderParentDashboard() : null}
-                    {role === 'student' ? renderStudentDashboard() : null} */}
+                    {stats?.error ? (
+                        <Card>
+                            <CardContent className="flex items-center gap-3 pt-6">
+                                <AlertCircle className="h-5 w-5 text-red-600" />
+                                <p className="text-sm text-muted-foreground">{stats.error}</p>
+                            </CardContent>
+                        </Card>
+                    ) : (
+                        <>
+                            {(role === 'admin' || role === 'principal') && renderAdminDashboard()}
+                            {role === 'teacher' && renderTeacherDashboard()}
+                            {role === 'parent' && renderParentDashboard()}
+                            {role === 'student' && renderStudentDashboard()}
+                        </>
+                    )}
                 </div>
             </div>
         </AppLayout>

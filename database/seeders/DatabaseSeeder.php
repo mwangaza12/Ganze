@@ -20,8 +20,12 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => 'Test User',
                 'password' => 'password',
+                'role' => User::ROLE_ADMIN,
+                'is_active' => true,
                 'email_verified_at' => now(),
             ]
         );
+
+        $this->call(StudentSeeder::class);
     }
 }
