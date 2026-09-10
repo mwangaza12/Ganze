@@ -32,10 +32,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Admin + teacher: day-to-day school operations (attendance, marks).
     // ------------------------------------------------------------------
     Route::middleware(['role:admin,teacher'])->group(function () {
-        // Students & guardians — viewing/searching is needed by teachers too.
+        // Students & guardians — viewing/searching the full list is
+        // restricted to staff; individual student.show/report-card are
+        // opened to parents/students below and gated by StudentPolicy.
         Route::get('students', [StudentController::class, 'index'])->name('students.index');
-        Route::get('students/{student}', [StudentController::class, 'show'])->name('students.show');
-        Route::get('students/{id}/report-card', [StudentController::class, 'reportCard'])->name('students.report-card');
 
         // Attendance
         Route::get('attendance', [AttendanceController::class, 'index'])->name('attendance.index');
@@ -43,8 +43,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('attendance', [AttendanceController::class, 'store'])->name('attendance.store');
         Route::get('attendance/class/{classId}/report', [AttendanceController::class, 'classReport'])
             ->name('attendance.class-report');
-        Route::get('attendance/student/{studentId}/summary', [AttendanceController::class, 'studentSummary'])
-            ->name('attendance.student-summary');
 
         // Exams & marks entry
         Route::get('exams', [ExamController::class, 'index'])->name('exams.index');
@@ -53,8 +51,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('exams.enter-marks');
         Route::post('exams/{examId}/marks', [ExamController::class, 'storeMarks'])
             ->name('exams.store-marks');
-        Route::get('exams/{examId}/students/{studentId}/report', [ExamController::class, 'studentReport'])
-            ->name('exams.student-report');
 
         // Events (view only for teachers; creation restricted below)
         Route::get('events', [EventController::class, 'index'])->name('events.index');
@@ -65,12 +61,29 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::prefix('reports')->name('reports.')->group(function () {
             Route::get('attendance/class/{classId}', [ReportController::class, 'attendanceByClass'])
                 ->name('attendance.class');
-            Route::get('attendance/student/{studentId}', [ReportController::class, 'attendanceByStudent'])
-                ->name('attendance.student');
             Route::get('academic/class/{classId}/term/{termId}', [ReportController::class, 'academicReport'])
                 ->name('academic');
         });
     });
+
+    // ------------------------------------------------------------------
+    // Any authenticated role may hit these — access to a *specific*
+    // student's records is gated per-record by StudentPolicy@view, not by
+    // role, so a parent only ever sees their own children and a student
+    // only ever sees themselves. Admins/teachers can view any student.
+    // ------------------------------------------------------------------
+    Route::get('students/{student}', [StudentController::class, 'show'])->name('students.show');
+    Route::get('students/{id}/report-card', [StudentController::class, 'reportCard'])->name('students.report-card');
+    Route::get('attendance/student/{studentId}/summary', [AttendanceController::class, 'studentSummary'])
+        ->name('attendance.student-summary');
+    Route::get('exams/{examId}/students/{studentId}/report', [ExamController::class, 'studentReport'])
+        ->name('exams.student-report');
+    Route::get('students/{studentId}/fees', [FeeController::class, 'studentFees'])
+        ->name('fees.student');
+    Route::get('payments/{receiptNumber}/receipt', [FeeController::class, 'receipt'])
+        ->name('payments.receipt');
+    Route::get('reports/attendance/student/{studentId}', [ReportController::class, 'attendanceByStudent'])
+        ->name('reports.attendance.student');
 
     // ------------------------------------------------------------------
     // Admin only: everything that changes the school's core setup, staff,
@@ -142,15 +155,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('fees', [FeeController::class, 'index'])->name('fees.index');
         Route::get('fees/create', [FeeController::class, 'create'])->name('fees.create');
         Route::post('fees', [FeeController::class, 'store'])->name('fees.store');
+        Route::post('fees/{feeStructure}/generate-missing', [FeeController::class, 'generateMissing'])
+            ->name('fees.generate-missing');
 
-        Route::get('students/{studentId}/fees', [FeeController::class, 'studentFees'])
-            ->name('fees.student');
         Route::get('students/{studentId}/payments/create', [FeeController::class, 'createPayment'])
             ->name('payments.create');
         Route::post('payments', [FeeController::class, 'storePayment'])
             ->name('payments.store');
-        Route::get('payments/{receiptNumber}/receipt', [FeeController::class, 'receipt'])
-            ->name('payments.receipt');
 
         Route::prefix('reports')->name('reports.')->group(function () {
             Route::get('fees/summary', [ReportController::class, 'feesSummary'])
@@ -166,16 +177,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('events/{event}', [EventController::class, 'update'])->name('events.update');
         Route::delete('events/{event}', [EventController::class, 'destroy'])->name('events.destroy');
     });
-
-    // ------------------------------------------------------------------
-    // NOTE: parent/student self-service views (their own child's fees,
-    // attendance, report card) intentionally are not wired up here yet.
-    // Those need per-record ownership checks (e.g. a Policy verifying the
-    // logged-in guardian/student actually owns the requested student_id)
-    // rather than a role check alone, otherwise any parent could view any
-    // other family's data by changing the ID in the URL. Add those as a
-    // follow-up once StudentPolicy/GuardianPolicy exist.
-    // ------------------------------------------------------------------
 });
 
 require __DIR__.'/settings.php';

@@ -2,14 +2,21 @@ import React from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Eye, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Eye, Pencil, Trash2, Users } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
 
 function FeesIndex({ feeStructures, terms, classes, filters }:{feeStructures: any, terms: any, classes: any, filters: any}) {
     const [termId, setTermId] = React.useState(filters.term_id ?? 'all');
     const [classId, setClassId] = React.useState(filters.class_id ?? 'all');
+
+    const handleGenerate = (feeStructureId: number) => {
+        router.post(`/fees/${feeStructureId}/generate-missing`, {}, {
+            preserveScroll: true,
+        });
+    };
 
     const handleFilter = () => {
         router.get('/fees', { 
@@ -86,7 +93,12 @@ function FeesIndex({ feeStructures, terms, classes, filters }:{feeStructures: an
                     </Card>
 
                     <div className="grid gap-4">
-                        {feeStructures?.map((fee: any) => (
+                        {feeStructures?.map((fee: any) => {
+                            const classSize = fee.class?.students_count ?? null;
+                            const billedCount = fee.student_fees_count ?? 0;
+                            const fullyBilled = classSize !== null && billedCount >= classSize;
+
+                            return (
                             <Card key={fee.id}>
                                 <CardContent className="pt-6">
                                     <div className="flex items-center justify-between">
@@ -97,9 +109,23 @@ function FeesIndex({ feeStructures, terms, classes, filters }:{feeStructures: an
                                                 <p>Term: {fee.term?.name} - {fee.academic_year?.year}</p>
                                                 <p className="text-lg font-bold text-primary">Amount: KSh {parseFloat(fee.amount).toLocaleString()}</p>
                                                 {fee.description && <p className="text-sm">{fee.description}</p>}
+                                                <div className="flex items-center gap-2 pt-1">
+                                                    <Users className="h-3.5 w-3.5" />
+                                                    <span>
+                                                        Billed {billedCount}{classSize !== null ? ` of ${classSize}` : ''} student(s)
+                                                    </span>
+                                                    <Badge variant={fullyBilled ? 'secondary' : 'destructive'}>
+                                                        {fullyBilled ? 'Up to date' : 'Needs billing'}
+                                                    </Badge>
+                                                </div>
                                             </div>
                                         </div>
                                         <div className="flex gap-2">
+                                            {!fullyBilled && (
+                                                <Button variant="outline" size="sm" onClick={() => handleGenerate(fee.id)}>
+                                                    Bill Students
+                                                </Button>
+                                            )}
                                             <Button variant="outline" size="sm">
                                                 <Pencil className="h-4 w-4" />
                                             </Button>
@@ -110,7 +136,8 @@ function FeesIndex({ feeStructures, terms, classes, filters }:{feeStructures: an
                                     </div>
                                 </CardContent>
                             </Card>
-                        ))}
+                            );
+                        })}
                     </div>
                 </div>
             </div>

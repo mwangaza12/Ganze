@@ -142,9 +142,10 @@ class AttendanceController extends Controller
     /**
      * Show attendance summary for a student
      */
-    public function studentSummary($studentId, Request $request)
+   public function studentSummary($studentId, Request $request)
     {
         $student = Student::with(['class', 'stream'])->findOrFail($studentId);
+        $this->authorize('view', $student);
         $startDate = $request->start_date ?? now()->startOfMonth();
         $endDate = $request->end_date ?? now()->endOfMonth();
 

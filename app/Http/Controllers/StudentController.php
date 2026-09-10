@@ -6,6 +6,7 @@ use App\Models\Student;
 use App\Models\User;
 use App\Models\ClassModel;
 use App\Models\Stream;
+use App\Services\FeeGenerationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -14,6 +15,10 @@ use Inertia\Inertia;
 
 class StudentController extends Controller
 {
+    public function __construct(protected FeeGenerationService $feeGenerationService)
+    {
+    }
+
     /**
      * Display a listing of students
      */
@@ -107,7 +112,11 @@ class StudentController extends Controller
 
             // Create student
             $validated['user_id'] = $user->id;
-            Student::create($validated);
+            $student = Student::create($validated);
+
+            // Bill the student for whatever the rest of their class is
+            // already being charged this academic year.
+            $this->feeGenerationService->generateForStudent($student);
 
             DB::commit();
 
@@ -139,8 +148,50 @@ class StudentController extends Controller
             'marks.subject'
         ])->findOrFail($id);
 
+        $this->authorize('view', $student);
+
         return Inertia::render('Students/Show', [
             'student' => $student
+        ]);
+    }
+
+    /**
+     * Display a student's academic report card — all marks across all
+     * exams, grouped by exam, so a parent/student/teacher can see the
+     * full academic history in one place.
+     */
+    public function reportCard($id)
+    {
+        $student = Student::with([
+            'class',
+            'stream',
+            'guardians',
+            'attendance' => fn ($query) => $query->latest()->limit(30),
+            'marks.exam',
+            'marks.subject',
+            'fees.feeStructure',
+            'payments',
+        ])->findOrFail($id);
+
+        $this->authorize('view', $student);
+
+        $marksByExam = \App\Models\Mark::where('student_id', $id)
+            ->with(['exam.term.academicYear', 'subject'])
+            ->get()
+            ->groupBy('exam_id')
+            ->map(function ($marks) {
+                return [
+                    'exam' => $marks->first()->exam,
+                    'marks' => $marks->values(),
+                    'total_points' => $marks->sum('points'),
+                    'mean_points' => $marks->count() > 0 ? round($marks->sum('points') / $marks->count(), 2) : 0,
+                ];
+            })
+            ->values();
+
+        return Inertia::render('Students/Show', [
+            'student' => $student,
+            'reportCard' => $marksByExam,
         ]);
     }
 
@@ -184,7 +235,15 @@ class StudentController extends Controller
             'status' => 'sometimes|in:active,transferred,graduated,expelled,withdrawn',
         ]);
 
+        $classChanged = isset($validated['class_id']) && $validated['class_id'] != $student->class_id;
+
         $student->update($validated);
+
+        if ($classChanged) {
+            // Moving classes (promotion/transfer) means new fee structures
+            // may apply — bill for whatever's missing under the new class.
+            $this->feeGenerationService->generateForStudent($student->fresh());
+        }
 
         return redirect()->route('students.index')
             ->with('success', 'Student updated successfully');

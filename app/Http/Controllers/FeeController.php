@@ -9,18 +9,24 @@ use App\Models\Student;
 use App\Models\AcademicYear;
 use App\Models\Term;
 use App\Models\ClassModel;
+use App\Services\FeeGenerationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class FeeController extends Controller
 {
+    public function __construct(protected FeeGenerationService $feeGenerationService)
+    {
+    }
+
     /**
      * Display fee structures
      */
     public function index(Request $request)
     {
-        $query = FeeStructure::with(['academicYear', 'term', 'class']);
+        $query = FeeStructure::with(['academicYear', 'term', 'class'])
+            ->withCount('studentFees');
 
         if ($request->has('term_id')) {
             $query->where('term_id', $request->term_id);
@@ -32,7 +38,7 @@ class FeeController extends Controller
 
         $feeStructures = $query->get();
         $terms = Term::with('academicYear')->get();
-        $classes = ClassModel::all();
+        $classes = ClassModel::withCount(['students' => fn ($q) => $q->where('status', 'active')])->get();
 
         return Inertia::render('Fees/Index', [
             'feeStructures' => $feeStructures,
@@ -59,7 +65,8 @@ class FeeController extends Controller
     }
 
     /**
-     * Store fee structure
+     * Store fee structure, then immediately bill every active student in
+     * that class for it.
      */
     public function store(Request $request)
     {
@@ -72,10 +79,30 @@ class FeeController extends Controller
             'description' => 'nullable|string',
         ]);
 
-        FeeStructure::create($validated);
+        $feeStructure = FeeStructure::create($validated);
+
+        $billed = $this->feeGenerationService->generateForStructure($feeStructure);
 
         return redirect()->route('fees.index')
-            ->with('success', 'Fee structure created successfully');
+            ->with('success', "Fee structure created. {$billed} student(s) billed.");
+    }
+
+    /**
+     * Re-run fee generation for an existing fee structure. Useful when a
+     * student is added to the class after the structure was created, or
+     * when a bulk-import happens outside the normal admission flow.
+     * Safe to call repeatedly — it only fills in what's missing.
+     */
+    public function generateMissing(FeeStructure $feeStructure)
+    {
+        $billed = $this->feeGenerationService->generateForStructure($feeStructure);
+
+        return back()->with(
+            'success',
+            $billed > 0
+                ? "Billed {$billed} additional student(s)."
+                : 'Every active student in this class is already billed.'
+        );
     }
 
     /**
@@ -84,6 +111,7 @@ class FeeController extends Controller
     public function studentFees($studentId)
     {
         $student = Student::with(['class', 'stream'])->findOrFail($studentId);
+        $this->authorize('view', $student);
         
         $fees = StudentFee::where('student_id', $studentId)
             ->with(['feeStructure', 'payments'])
@@ -136,6 +164,15 @@ class FeeController extends Controller
 
         DB::beginTransaction();
         try {
+            $studentFee = StudentFee::findOrFail($validated['student_fee_id']);
+
+            if (bccomp((string) $validated['amount'], (string) $studentFee->balance, 2) > 0) {
+                DB::rollBack();
+                return back()->withErrors([
+                    'amount' => 'Payment amount cannot exceed the outstanding balance of KSh ' . number_format($studentFee->balance, 2) . '.',
+                ])->withInput();
+            }
+
             // Generate receipt number
             $receiptNumber = Payment::generateReceiptNumber();
 
@@ -153,7 +190,6 @@ class FeeController extends Controller
             ]);
 
             // Update student fee
-            $studentFee = StudentFee::findOrFail($validated['student_fee_id']);
             $studentFee->amount_paid += $validated['amount'];
             $studentFee->balance = $studentFee->amount_due - $studentFee->amount_paid;
             
@@ -185,6 +221,8 @@ class FeeController extends Controller
         $payment = Payment::where('receipt_number', $receiptNumber)
             ->with(['student.class', 'studentFee.feeStructure', 'receivedBy'])
             ->firstOrFail();
+
+        $this->authorize('view', $payment->student);
 
         return Inertia::render('Fees/Receipt', [
             'payment' => $payment

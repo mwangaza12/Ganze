@@ -255,6 +255,8 @@ class ExamController extends Controller
         $exam = Exam::with('term.academicYear', 'class')->findOrFail($examId);
         $student = Student::with(['class', 'stream'])->findOrFail($studentId);
         
+        $this->authorize('view', $student);
+        
         $marks = Mark::where('exam_id', $examId)
             ->where('student_id', $studentId)
             ->with('subject')
