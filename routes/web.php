@@ -74,6 +74,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // ------------------------------------------------------------------
     Route::get('students/{student}', [StudentController::class, 'show'])->name('students.show');
     Route::get('students/{id}/report-card', [StudentController::class, 'reportCard'])->name('students.report-card');
+    Route::get('payments/{receiptNumber}/receipt/pdf', [FeeController::class, 'receiptPdf'])->name('payments.receipt.pdf');
     Route::get('attendance/student/{studentId}/summary', [AttendanceController::class, 'studentSummary'])
         ->name('attendance.student-summary');
     Route::get('exams/{examId}/students/{studentId}/report', [ExamController::class, 'studentReport'])

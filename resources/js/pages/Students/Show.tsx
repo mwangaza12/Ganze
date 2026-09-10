@@ -17,7 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { ArrowLeft, Pencil, User, GraduationCap, Wallet, CalendarDays } from 'lucide-react';
+import { ArrowLeft, Pencil, User, GraduationCap, Wallet, CalendarDays, Download } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
 
 // ---- design tokens (page-local) ---------------------------------------
@@ -106,8 +106,14 @@ export default function Show({ auth, student }: { auth: any; student: any }) {
   const totalPaid = fees.reduce((sum: number, fee: any) => sum + parseFloat(fee.amount_paid || 0), 0);
   const balance = fees.reduce((sum: number, fee: any) => sum + parseFloat(fee.balance || 0), 0);
 
+  const isStaff = auth.user?.role === 'admin' || auth.user?.role === 'teacher';
+  const backHref = isStaff ? '/students' : '/dashboard';
+  const breadcrumbs = isStaff
+    ? [{ title: 'Students', href: '/students' }, { title: student.full_name, href: '#' }]
+    : [{ title: student.full_name, href: '#' }];
+
   return (
-    <AppLayout breadcrumbs={auth.user}>
+    <AppLayout breadcrumbs={breadcrumbs}>
       <Head title={`Student - ${student.full_name}`}>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
@@ -148,13 +154,23 @@ export default function Show({ auth, student }: { auth: any; student: any }) {
                 </p>
               </div>
             </div>
-
-            <Button asChild>
-              <Link href={`/students/${student.id}/edit`}>
-                <Pencil className="mr-2 h-4 w-4" />
-                Edit student
-              </Link>
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" asChild>
+                <a href={`/students/${student.id}/report-card/pdf`}>
+                  <Download className="mr-2 h-4 w-4" />
+                  Report card
+                </a>
+              </Button>
+              {isStaff && (
+                <Button asChild>
+                  <Link href={`/students/${student.id}/edit`}>
+                    <Pencil className="mr-2 h-4 w-4" />
+                    Edit student
+                  </Link>
+                </Button>
+              )}
+            </div>
+          </div>
           </div>
 
           {/* Record strip */}
@@ -438,7 +454,6 @@ export default function Show({ auth, student }: { auth: any; student: any }) {
               </div>
             </TabsContent>
           </Tabs>
-        </div>
       </div>
     </AppLayout>
   );

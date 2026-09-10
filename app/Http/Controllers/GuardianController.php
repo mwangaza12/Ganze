@@ -51,7 +51,7 @@ class GuardianController extends Controller
             'first_name' => 'required|string|max:255',
             'middle_name' => 'nullable|string|max:255',
             'last_name' => 'required|string|max:255',
-            'phone' => 'required|string',
+            'phone' => 'required|string|unique:users,phone',
             'alt_phone' => 'nullable|string',
             'email' => 'nullable|email|unique:users',
             'relationship' => 'required|in:father,mother,guardian,other',

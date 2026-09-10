@@ -228,4 +228,22 @@ class FeeController extends Controller
             'payment' => $payment
         ]);
     }
+
+    /**
+     * Download payment receipt as PDF
+     */
+    public function receiptPdf($receiptNumber)
+    {
+        $payment = Payment::where('receipt_number', $receiptNumber)
+            ->with(['student.class', 'studentFee.feeStructure', 'receivedBy'])
+            ->firstOrFail();
+
+        $this->authorize('view', $payment->student);
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.receipt', [
+            'payment' => $payment,
+        ]);
+
+        return $pdf->download("receipt-{$payment->receipt_number}.pdf");
+    }
 }

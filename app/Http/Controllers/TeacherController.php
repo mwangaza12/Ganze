@@ -55,7 +55,7 @@ class TeacherController extends Controller
             'date_of_birth' => 'required|date',
             'date_of_employment' => 'required|date',
             'qualification' => 'required|string',
-            'phone' => 'required|string',
+            'phone' => 'required|string|unique:users,phone',
             'alt_phone' => 'nullable|string',
             'address' => 'nullable|string',
             'emergency_contact' => 'required|string',

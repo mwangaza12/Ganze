@@ -175,7 +175,36 @@ class StudentController extends Controller
 
         $this->authorize('view', $student);
 
-        $marksByExam = \App\Models\Mark::where('student_id', $id)
+        return Inertia::render('Students/Show', [
+            'student' => $student,
+            'reportCard' => $this->marksGroupedByExam($id),
+        ]);
+    }
+
+    /**
+     * Download the student's report card as a PDF.
+     */
+    public function reportCardPdf($id)
+    {
+        $student = Student::with(['class', 'stream'])->findOrFail($id);
+
+        $this->authorize('view', $student);
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.report-card', [
+            'student' => $student,
+            'marksByExam' => $this->marksGroupedByExam($id),
+        ]);
+
+        return $pdf->download("report-card-{$student->admission_number}.pdf");
+    }
+
+    /**
+     * All of a student's marks, grouped by exam, with per-exam summary
+     * stats. Shared by the on-screen report card and the PDF download.
+     */
+    private function marksGroupedByExam($studentId)
+    {
+        return \App\Models\Mark::where('student_id', $studentId)
             ->with(['exam.term.academicYear', 'subject'])
             ->get()
             ->groupBy('exam_id')
@@ -188,11 +217,6 @@ class StudentController extends Controller
                 ];
             })
             ->values();
-
-        return Inertia::render('Students/Show', [
-            'student' => $student,
-            'reportCard' => $marksByExam,
-        ]);
     }
 
     /**
