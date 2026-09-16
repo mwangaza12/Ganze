@@ -12,7 +12,7 @@ class Student extends Model
 
     protected $fillable = [
         'user_id', 'admission_number', 'first_name', 'middle_name', 'last_name',
-        'gender', 'date_of_birth', 'admission_date', 'class_id', 'stream_id',
+        'gender', 'date_of_birth', 'admission_date', 'grade_id', 'stream_id',
         'birth_certificate_number', 'medical_conditions', 'allergies',
         'address', 'county', 'sub_county', 'status', 'photo'
     ];
@@ -24,13 +24,11 @@ class Student extends Model
 
     protected $appends = ['full_name', 'age'];
 
-    // Accessor for full name
     public function getFullNameAttribute()
     {
         return trim("{$this->first_name} {$this->middle_name} {$this->last_name}");
     }
 
-    // Accessor for age
     public function getAgeAttribute()
     {
         return $this->date_of_birth->age;
@@ -42,9 +40,9 @@ class Student extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function class()
+    public function grade()
     {
-        return $this->belongsTo(ClassModel::class, 'class_id');
+        return $this->belongsTo(Grade::class);
     }
 
     public function stream()
@@ -87,15 +85,27 @@ class Student extends Model
         return $this->hasMany(Payment::class);
     }
 
+    public function pathways()
+    {
+        return $this->hasMany(StudentPathway::class);
+    }
+
+    // Pathway for the current academic year (only meaningful for Senior School students).
+    public function currentPathway()
+    {
+        return $this->hasOne(StudentPathway::class)
+                    ->whereHas('academicYear', fn ($q) => $q->where('is_current', true));
+    }
+
     // Scopes
     public function scopeActive($query)
     {
         return $query->where('status', 'active');
     }
 
-    public function scopeByClass($query, $classId)
+    public function scopeByGrade($query, $gradeId)
     {
-        return $query->where('class_id', $classId);
+        return $query->where('grade_id', $gradeId);
     }
 
     public function scopeByStream($query, $streamId)

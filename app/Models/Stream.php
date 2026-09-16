@@ -10,13 +10,13 @@ class Stream extends Model
     use HasFactory;
 
     protected $fillable = [
-        'class_id', 'name', 'teacher_id', 'capacity'
+        'grade_id', 'name', 'teacher_id', 'capacity'
     ];
 
     // Relationships
-    public function class()
+    public function grade()
     {
-        return $this->belongsTo(ClassModel::class, 'class_id');
+        return $this->belongsTo(Grade::class);
     }
 
     public function classTeacher()

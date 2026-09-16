@@ -11,7 +11,7 @@ class Event extends Model
 
     protected $fillable = [
         'title', 'description', 'event_date', 'start_time',
-        'end_time', 'type', 'target_audience', 'class_id', 'created_by'
+        'end_time', 'type', 'target_audience', 'grade_id', 'created_by'
     ];
 
     protected $casts = [
@@ -21,9 +21,9 @@ class Event extends Model
     ];
 
     // Relationships
-    public function class()
+    public function grade()
     {
-        return $this->belongsTo(ClassModel::class, 'class_id');
+        return $this->belongsTo(Grade::class);
     }
 
     public function creator()

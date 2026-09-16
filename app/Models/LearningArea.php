@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Subject extends Model
+class LearningArea extends Model
 {
     use HasFactory;
 
@@ -20,23 +20,25 @@ class Subject extends Model
     // Relationships
     public function teachers()
     {
-        return $this->belongsToMany(Teacher::class, 'teacher_subjects')
+        return $this->belongsToMany(Teacher::class, 'teacher_learning_areas')
                     ->withTimestamps();
     }
 
-    public function classes()
+    public function grades()
     {
-        return $this->belongsToMany(
-            ClassModel::class,
-            'class_subjects',
-            'subject_id',
-            'class_id'
-        )->withPivot('teacher_id')->withTimestamps();
+        return $this->belongsToMany(Grade::class, 'grade_learning_areas')
+                    ->withPivot('id', 'pathway_id', 'teacher_id')
+                    ->withTimestamps();
     }
 
-    public function classSubjects()
+    public function gradeLearningAreas()
     {
-        return $this->hasMany(ClassSubject::class);
+        return $this->hasMany(GradeLearningArea::class);
+    }
+
+    public function strands()
+    {
+        return $this->hasMany(Strand::class);
     }
 
     public function marks()

@@ -10,7 +10,7 @@ class Exam extends Model
     use HasFactory;
 
     protected $fillable = [
-        'term_id', 'class_id', 'name', 'type',
+        'term_id', 'grade_id', 'name', 'type',
         'exam_date', 'total_marks', 'description'
     ];
 
@@ -18,15 +18,14 @@ class Exam extends Model
         'exam_date' => 'date',
     ];
 
-    // Relationships
     public function term()
     {
         return $this->belongsTo(Term::class);
     }
 
-    public function class()
+    public function grade()
     {
-        return $this->belongsTo(ClassModel::class, 'class_id');
+        return $this->belongsTo(Grade::class);
     }
 
     public function marks()
@@ -34,7 +33,6 @@ class Exam extends Model
         return $this->hasMany(Mark::class);
     }
 
-    // Scopes
     public function scopeByType($query, $type)
     {
         return $query->where('type', $type);

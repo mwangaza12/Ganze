@@ -35,15 +35,15 @@ class Teacher extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function subjects()
+    public function learningAreas()
     {
-        return $this->belongsToMany(Subject::class, 'teacher_subjects')
+        return $this->belongsToMany(LearningArea::class, 'teacher_learning_areas')
                     ->withTimestamps();
     }
 
-    public function classSubjects()
+    public function gradeLearningAreas()
     {
-        return $this->hasMany(ClassSubject::class);
+        return $this->hasMany(GradeLearningArea::class);
     }
 
     public function streams()

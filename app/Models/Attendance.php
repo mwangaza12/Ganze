@@ -12,7 +12,7 @@ class Attendance extends Model
     protected $table = 'attendance';
 
     protected $fillable = [
-        'student_id', 'class_id', 'date', 'status',
+        'student_id', 'grade_id', 'date', 'status',
         'marked_by', 'remarks', 'check_in_time'
     ];
 
@@ -27,9 +27,9 @@ class Attendance extends Model
         return $this->belongsTo(Student::class);
     }
 
-    public function class()
+    public function grade()
     {
-        return $this->belongsTo(ClassModel::class, 'class_id');
+        return $this->belongsTo(Grade::class);
     }
 
     public function markedBy()

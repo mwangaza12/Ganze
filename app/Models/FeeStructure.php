@@ -10,7 +10,7 @@ class FeeStructure extends Model
     use HasFactory;
 
     protected $fillable = [
-        'academic_year_id', 'term_id', 'class_id',
+        'academic_year_id', 'term_id', 'grade_id',
         'fee_type', 'amount', 'description'
     ];
 
@@ -29,9 +29,9 @@ class FeeStructure extends Model
         return $this->belongsTo(Term::class);
     }
 
-    public function class()
+    public function grade()
     {
-        return $this->belongsTo(ClassModel::class, 'class_id');
+        return $this->belongsTo(Grade::class);
     }
 
     public function studentFees()
