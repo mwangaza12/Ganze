@@ -9,51 +9,47 @@ import { ArrowLeft } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
 
-export default function StreamCreate({ classItem, stream, teachers }:{ classItem: any, stream: any, teachers: any}) {
-    const isEdit = !!stream;
-    
-    const { data, setData, post, put, processing, errors } = useForm({
-        class_id: classItem?.id ?? stream?.class_id ?? 'all',
-        name: stream?.name || '',
-        teacher_id: stream?.teacher_id?.toString() ?? 'all',
-        capacity: stream?.capacity?.toString() || '40',
+export default function StreamCreate({ gradeItem, teachers }: { gradeItem: any, teachers: any }) {
+    const { data, setData, post, processing, errors } = useForm({
+        name: '',
+        teacher_id: 'all',
+        capacity: '40',
     });
 
     const handleSubmit = (e: any) => {
         e.preventDefault();
-        
-        if (isEdit) {
-            put(`/classes/${classItem.id}/streams/${stream.id}`);
-        } else {
-            post(`/classes/${classItem.id}/streams`);
-        }
+
+        post(`/grades/${gradeItem.id}/streams`, {
+            data: {
+                ...data,
+                teacher_id: data.teacher_id === 'all' ? null : data.teacher_id,
+            },
+        } as any);
     };
 
     const breadcrumbs: BreadcrumbItem[] = [
         {
-            title: "Create Stream",
-            href: "/classes",
+            title: "Add Stream",
+            href: "/grades",
         }
     ]
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title={isEdit ? 'Edit Stream' : 'Add Stream'} />
+            <Head title="Add Stream" />
 
             <div className="py-6">
                 <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center gap-4 mb-6">
                         <Button variant="ghost" size="icon" asChild>
-                            <Link href={`/classes/${classItem.id}`}>
+                            <Link href={`/grades/${gradeItem.id}`}>
                                 <ArrowLeft className="h-4 w-4" />
                             </Link>
                         </Button>
                         <div>
-                            <h2 className="text-3xl font-bold tracking-tight">
-                                {isEdit ? 'Edit Stream' : 'Add New Stream'}
-                            </h2>
+                            <h2 className="text-3xl font-bold tracking-tight">Add New Stream</h2>
                             <p className="text-muted-foreground">
-                                {classItem?.name} - {isEdit ? 'Update stream information' : 'Create a new stream'}
+                                {gradeItem?.name} - Create a new stream
                             </p>
                         </div>
                     </div>
@@ -121,10 +117,10 @@ export default function StreamCreate({ classItem, stream, teachers }:{ classItem
 
                                 <div className="flex gap-4 pt-4">
                                     <Button type="button" onClick={handleSubmit} disabled={processing}>
-                                        {processing ? 'Saving...' : (isEdit ? 'Update Stream' : 'Create Stream')}
+                                        {processing ? 'Saving...' : 'Create Stream'}
                                     </Button>
                                     <Button type="button" variant="outline" asChild>
-                                        <Link href={`/classes/${classItem.id}`}>Cancel</Link>
+                                        <Link href={`/grades/${gradeItem.id}`}>Cancel</Link>
                                     </Button>
                                 </div>
                             </div>

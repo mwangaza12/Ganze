@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Event;
-use App\Models\ClassModel;
+use App\Models\Grade;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -11,28 +11,28 @@ class EventController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Event::with(['class', 'creator']);
+        $query = Event::with(['grade', 'creator']);
 
         if ($request->has('type') && $request->type) {
             $query->where('type', $request->type);
         }
 
         $events = $query->latest('event_date')->paginate($request->per_page ?? 15);
-        $classes = ClassModel::all();
+        $grades = Grade::ordered()->get();
 
         return Inertia::render('Events/Index', [
             'events' => $events,
-            'classes' => $classes,
+            'grades' => $grades,
             'filters' => $request->only(['type'])
         ]);
     }
 
     public function create()
     {
-        $classes = ClassModel::all();
+        $grades = Grade::ordered()->get();
 
         return Inertia::render('Events/Create', [
-            'classes' => $classes
+            'grades' => $grades
         ]);
     }
 
@@ -46,7 +46,7 @@ class EventController extends Controller
             'end_time' => 'nullable|date_format:H:i',
             'type' => 'required|in:academic,sports,meeting,holiday,exam,other',
             'target_audience' => 'required|in:all,students,teachers,parents,specific_class',
-            'class_id' => 'nullable|exists:classes,id',
+            'grade_id' => 'nullable|exists:grades,id',
         ]);
 
         $validated['created_by'] = auth()->id();
@@ -58,7 +58,7 @@ class EventController extends Controller
 
     public function show($id)
     {
-        $event = Event::with(['class', 'creator'])->findOrFail($id);
+        $event = Event::with(['grade', 'creator'])->findOrFail($id);
 
         return Inertia::render('Events/Show', [
             'event' => $event
@@ -68,11 +68,11 @@ class EventController extends Controller
     public function edit($id)
     {
         $event = Event::findOrFail($id);
-        $classes = ClassModel::all();
+        $grades = Grade::ordered()->get();
 
         return Inertia::render('Events/Edit', [
             'event' => $event,
-            'classes' => $classes
+            'grades' => $grades
         ]);
     }
 
@@ -88,7 +88,7 @@ class EventController extends Controller
             'end_time' => 'nullable|date_format:H:i',
             'type' => 'sometimes|in:academic,sports,meeting,holiday,exam,other',
             'target_audience' => 'sometimes|in:all,students,teachers,parents,specific_class',
-            'class_id' => 'nullable|exists:classes,id',
+            'grade_id' => 'nullable|exists:grades,id',
         ]);
 
         $event->update($validated);
@@ -109,7 +109,7 @@ class EventController extends Controller
     public function upcoming()
     {
         $events = Event::where('event_date', '>=', today())
-            ->with(['class'])
+            ->with(['grade'])
             ->orderBy('event_date')
             ->limit(10)
             ->get();

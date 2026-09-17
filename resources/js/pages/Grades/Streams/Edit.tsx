@@ -3,94 +3,91 @@ import { Head, Link, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ArrowLeft } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
 
-export default function CreateEdit({ auth, classItem }: { auth: any, classItem: any}) {
-    const isEdit = !!classItem;
-    
-    const { data, setData, post, put, processing, errors } = useForm({
-        name: classItem?.name || '',
-        level: classItem?.level?.toString() || '',
-        capacity: classItem?.capacity?.toString() || '40',
+export default function StreamEdit({ stream, grade, teachers }: { stream: any, grade: any, teachers: any }) {
+    const { data, setData, put, processing, errors, transform } = useForm({
+        name: stream?.name || '',
+        teacher_id: stream?.teacher_id?.toString() ?? 'all',
+        capacity: stream?.capacity?.toString() || '40',
     });
+
+    transform((formData) => ({
+        ...formData,
+        teacher_id: formData.teacher_id === 'all' ? null : formData.teacher_id,
+    }));
 
     const handleSubmit = (e: any) => {
         e.preventDefault();
-        
-        if (isEdit) {
-            put(`/classes/${classItem.id}`);
-        } else {
-            post('/classes');
-        }
+        put(`/grades/${grade.id}/streams/${stream.id}`);
     };
 
     const breadcrumbs: BreadcrumbItem[] = [
         {
-            title: "Classes",
-            href: "/classes"
+            title: "Edit Stream",
+            href: "/grades",
         }
     ]
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title={isEdit ? 'Edit Class' : 'Add Class'} />
+            <Head title="Edit Stream" />
 
             <div className="py-6">
                 <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center gap-4 mb-6">
+                        <Button variant="ghost" size="icon" asChild>
+                            <Link href={`/grades/${grade.id}`}>
+                                <ArrowLeft className="h-4 w-4" />
+                            </Link>
+                        </Button>
                         <div>
-                            <h2 className="text-3xl font-bold tracking-tight">
-                                {isEdit ? 'Edit Class' : 'Add New Class'}
-                            </h2>
+                            <h2 className="text-3xl font-bold tracking-tight">Edit Stream</h2>
                             <p className="text-muted-foreground">
-                                {isEdit ? 'Update class information' : 'Create a new class'}
+                                {grade?.name} - Update stream information
                             </p>
                         </div>
                     </div>
 
                     <Card>
                         <CardHeader>
-                            <CardTitle>Class Details</CardTitle>
-                            <CardDescription>Enter the class information</CardDescription>
+                            <CardTitle>Stream Details</CardTitle>
+                            <CardDescription>Enter the stream information</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="name">
-                                        Class Name <span className="text-destructive">*</span>
+                                        Stream Name <span className="text-destructive">*</span>
                                     </Label>
                                     <Input
                                         id="name"
                                         value={data.name}
                                         onChange={(e) => setData('name', e.target.value)}
-                                        placeholder="e.g., Form 1, Form 2"
+                                        placeholder="e.g., A, B, East, West"
                                     />
                                     {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
-                                    <p className="text-sm text-muted-foreground">
-                                        Enter the class name (Form 1, Form 2, Form 3, Form 4)
-                                    </p>
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="level">
-                                        Level <span className="text-destructive">*</span>
-                                    </Label>
-                                    <Input
-                                        id="level"
-                                        type="number"
-                                        min="1"
-                                        max="4"
-                                        value={data.level}
-                                        onChange={(e) => setData('level', e.target.value)}
-                                        placeholder="1, 2, 3, or 4"
-                                    />
-                                    {errors.level && <p className="text-sm text-destructive">{errors.level}</p>}
-                                    <p className="text-sm text-muted-foreground">
-                                        Enter the form level (1-4)
-                                    </p>
+                                    <Label htmlFor="teacher_id">Class Teacher</Label>
+                                    <Select value={data.teacher_id} onValueChange={(value) => setData('teacher_id', value)}>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select class teacher (optional)" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="all">No class teacher</SelectItem>
+                                            {teachers?.map((teacher: any) => (
+                                                <SelectItem key={teacher.id} value={teacher.id.toString()}>
+                                                    {teacher.full_name}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
                                 </div>
 
                                 <div className="space-y-2">
@@ -106,17 +103,14 @@ export default function CreateEdit({ auth, classItem }: { auth: any, classItem: 
                                         placeholder="40"
                                     />
                                     {errors.capacity && <p className="text-sm text-destructive">{errors.capacity}</p>}
-                                    <p className="text-sm text-muted-foreground">
-                                        Maximum number of students in this class
-                                    </p>
                                 </div>
 
                                 <div className="flex gap-4 pt-4">
                                     <Button type="button" onClick={handleSubmit} disabled={processing}>
-                                        {processing ? 'Saving...' : (isEdit ? 'Update Class' : 'Create Class')}
+                                        {processing ? 'Saving...' : 'Update Stream'}
                                     </Button>
                                     <Button type="button" variant="outline" asChild>
-                                        <Link href="/classes">Cancel</Link>
+                                        <Link href={`/grades/${grade.id}`}>Cancel</Link>
                                     </Button>
                                 </div>
                             </div>

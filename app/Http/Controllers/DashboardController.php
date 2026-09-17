@@ -66,8 +66,8 @@ class DashboardController extends Controller
         }
 
         return [
-            'my_classes' => $teacher->streams()->with('class')->get(),
-            'my_subjects' => $teacher->subjects,
+            'my_classes' => $teacher->streams()->with('grade')->get(),
+            'my_learning_areas' => $teacher->learningAreas,
             'attendance_marked_today' => Attendance::whereDate('date', today())
                 ->where('marked_by', $teacher->id)
                 ->count(),
@@ -125,7 +125,7 @@ class DashboardController extends Controller
         }
 
         return [
-            'student_info' => $student->load(['class', 'stream']),
+            'student_info' => $student->load(['grade', 'stream']),
             'attendance_this_month' => [
                 'present' => Attendance::where('student_id', $student->id)
                     ->whereMonth('date', now()->month)

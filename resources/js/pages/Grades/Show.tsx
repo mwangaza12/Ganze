@@ -7,49 +7,58 @@ import { ArrowLeft, Plus, Pencil, Users, BookOpen, Trash2 } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
 
-export default function Show({ classItem }: { classItem: any}) {
+export default function Show({ grade }: { grade: any }) {
     const handleDeleteStream = (streamId: any, streamName: any) => {
         if (confirm(`Are you sure you want to delete stream ${streamName}?`)) {
-            router.delete(`/classes/${classItem.id}/streams/${streamId}`);
+            router.delete(`/grades/${grade.id}/streams/${streamId}`);
+        }
+    };
+
+    const handleUnassignLearningArea = (gradeLearningAreaId: any, name: any) => {
+        if (confirm(`Remove ${name} from this grade?`)) {
+            router.delete(`/grades/${grade.id}/learning-areas/${gradeLearningAreaId}/unassign`);
         }
     };
 
     const breadcrumbs: BreadcrumbItem[] = [
         {
-            title: "Class",
-            href: "/classes"
+            title: "Grade",
+            href: "/grades"
         }
     ]
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title={`Class - ${classItem.name}`} />
+            <Head title={`Grade - ${grade.name}`} />
 
             <div className="py-6">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-4">
                             <Button variant="ghost" size="icon" asChild>
-                                <Link href="/classes">
+                                <Link href="/grades">
                                     <ArrowLeft className="h-4 w-4" />
                                 </Link>
                             </Button>
                             <div>
-                                <h2 className="text-3xl font-bold tracking-tight">{classItem.name}</h2>
-                                <p className="text-muted-foreground">Form {classItem.level}</p>
+                                <h2 className="text-3xl font-bold tracking-tight">{grade.name}</h2>
+                                <p className="text-muted-foreground">
+                                    {grade.education_level?.name}
+                                    {grade.has_pathways && ' • Uses pathways'}
+                                </p>
                             </div>
                         </div>
                         <div className="flex gap-2">
                             <Button variant="outline" asChild>
-                                <Link href={`/classes/${classItem.id}/streams/create`}>
+                                <Link href={`/grades/${grade.id}/streams/create`}>
                                     <Plus className="mr-2 h-4 w-4" />
                                     Add Stream
                                 </Link>
                             </Button>
                             <Button variant="outline" asChild>
-                                <Link href={`/classes/${classItem.id}/edit`}>
+                                <Link href={`/grades/${grade.id}/edit`}>
                                     <Pencil className="mr-2 h-4 w-4" />
-                                    Edit Class
+                                    Edit Grade
                                 </Link>
                             </Button>
                         </div>
@@ -62,8 +71,8 @@ export default function Show({ classItem }: { classItem: any}) {
                                 <CardTitle className="text-sm font-medium">Total Students</CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <p className="text-2xl font-bold">{classItem.students?.length || 0}</p>
-                                <p className="text-sm text-muted-foreground">out of {classItem.capacity}</p>
+                                <p className="text-2xl font-bold">{grade.students?.length || 0}</p>
+                                <p className="text-sm text-muted-foreground">out of {grade.capacity}</p>
                             </CardContent>
                         </Card>
 
@@ -72,18 +81,18 @@ export default function Show({ classItem }: { classItem: any}) {
                                 <CardTitle className="text-sm font-medium">Streams</CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <p className="text-2xl font-bold">{classItem.streams?.length || 0}</p>
+                                <p className="text-2xl font-bold">{grade.streams?.length || 0}</p>
                                 <p className="text-sm text-muted-foreground">active streams</p>
                             </CardContent>
                         </Card>
 
                         <Card>
                             <CardHeader className="pb-3">
-                                <CardTitle className="text-sm font-medium">Subjects</CardTitle>
+                                <CardTitle className="text-sm font-medium">Learning Areas</CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <p className="text-2xl font-bold">{classItem.subjects?.length || 0}</p>
-                                <p className="text-sm text-muted-foreground">assigned subjects</p>
+                                <p className="text-2xl font-bold">{grade.learning_areas?.length || 0}</p>
+                                <p className="text-sm text-muted-foreground">assigned learning areas</p>
                             </CardContent>
                         </Card>
                     </div>
@@ -99,9 +108,9 @@ export default function Show({ classItem }: { classItem: any}) {
                                 <Users className="mr-2 h-4 w-4" />
                                 Students
                             </TabsTrigger>
-                            <TabsTrigger value="subjects">
+                            <TabsTrigger value="learning-areas">
                                 <BookOpen className="mr-2 h-4 w-4" />
-                                Subjects
+                                Learning Areas
                             </TabsTrigger>
                         </TabsList>
 
@@ -112,7 +121,7 @@ export default function Show({ classItem }: { classItem: any}) {
                                     <div className="flex justify-between items-center">
                                         <CardTitle>Streams</CardTitle>
                                         <Button size="sm" asChild>
-                                            <Link href={`/classes/${classItem.id}/streams/create`}>
+                                            <Link href={`/grades/${grade.id}/streams/create`}>
                                                 <Plus className="mr-2 h-4 w-4" />
                                                 Add Stream
                                             </Link>
@@ -120,15 +129,15 @@ export default function Show({ classItem }: { classItem: any}) {
                                     </div>
                                 </CardHeader>
                                 <CardContent>
-                                    {classItem.streams && classItem.streams.length > 0 ? (
+                                    {grade.streams && grade.streams.length > 0 ? (
                                         <div className="space-y-3">
-                                            {classItem.streams.map((stream: any) => (
+                                            {grade.streams.map((stream: any) => (
                                                 <Card key={stream.id}>
                                                     <CardContent className="pt-6">
                                                         <div className="flex items-center justify-between">
                                                             <div className="flex-1">
                                                                 <h3 className="font-semibold text-lg">
-                                                                    {classItem.name} - {stream.name}
+                                                                    {grade.name} - {stream.name}
                                                                 </h3>
                                                                 <div className="text-sm text-muted-foreground mt-1">
                                                                     <p>Capacity: {stream.capacity}</p>
@@ -139,12 +148,12 @@ export default function Show({ classItem }: { classItem: any}) {
                                                             </div>
                                                             <div className="flex gap-2">
                                                                 <Button variant="outline" size="sm" asChild>
-                                                                    <Link href={`/classes/${classItem.id}/streams/${stream.id}/edit`}>
+                                                                    <Link href={`/grades/${grade.id}/streams/${stream.id}/edit`}>
                                                                         <Pencil className="h-4 w-4" />
                                                                     </Link>
                                                                 </Button>
-                                                                <Button 
-                                                                    variant="outline" 
+                                                                <Button
+                                                                    variant="outline"
                                                                     size="sm"
                                                                     onClick={() => handleDeleteStream(stream.id, stream.name)}
                                                                 >
@@ -169,12 +178,12 @@ export default function Show({ classItem }: { classItem: any}) {
                         <TabsContent value="students">
                             <Card>
                                 <CardHeader>
-                                    <CardTitle>Students in {classItem.name}</CardTitle>
+                                    <CardTitle>Students in {grade.name}</CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    {classItem.students && classItem.students.length > 0 ? (
+                                    {grade.students && grade.students.length > 0 ? (
                                         <div className="space-y-2">
-                                            {classItem.students.map((student: any) => (
+                                            {grade.students.map((student: any) => (
                                                 <div key={student.id} className="flex items-center justify-between p-3 border rounded-lg">
                                                     <div>
                                                         <p className="font-medium">{student.full_name}</p>
@@ -200,33 +209,43 @@ export default function Show({ classItem }: { classItem: any}) {
                             </Card>
                         </TabsContent>
 
-                        {/* Subjects Tab */}
-                        <TabsContent value="subjects">
+                        {/* Learning Areas Tab */}
+                        <TabsContent value="learning-areas">
                             <Card>
                                 <CardHeader>
-                                    <CardTitle>Subjects for {classItem.name}</CardTitle>
+                                    <CardTitle>Learning Areas for {grade.name}</CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    {classItem.classSubjects && classItem.classSubjects.length > 0 ? (
+                                    {grade.grade_learning_areas && grade.grade_learning_areas.length > 0 ? (
                                         <div className="space-y-2">
-                                            {classItem.classSubjects.map((classSubject: any) => (
-                                                <div key={classSubject.id} className="flex items-center justify-between p-3 border rounded-lg">
+                                            {grade.grade_learning_areas.map((gla: any) => (
+                                                <div key={gla.id} className="flex items-center justify-between p-3 border rounded-lg">
                                                     <div>
-                                                        <p className="font-medium">{classSubject.subject?.name}</p>
+                                                        <p className="font-medium">{gla.learning_area?.name}</p>
                                                         <p className="text-sm text-muted-foreground">
-                                                            Code: {classSubject.subject?.code}
-                                                            {classSubject.teacher && ` • Teacher: ${classSubject.teacher.full_name}`}
+                                                            Code: {gla.learning_area?.code}
+                                                            {gla.teacher && ` • Teacher: ${gla.teacher.full_name}`}
+                                                            {gla.pathway && ` • ${gla.pathway.name} pathway only`}
                                                         </p>
                                                     </div>
-                                                    <Badge variant="outline" className="capitalize">
-                                                        {classSubject.subject?.category}
-                                                    </Badge>
+                                                    <div className="flex items-center gap-2">
+                                                        <Badge variant="outline" className="capitalize">
+                                                            {gla.pathway ? gla.pathway.name : 'Compulsory'}
+                                                        </Badge>
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            onClick={() => handleUnassignLearningArea(gla.id, gla.learning_area?.name)}
+                                                        >
+                                                            <Trash2 className="h-4 w-4 text-destructive" />
+                                                        </Button>
+                                                    </div>
                                                 </div>
                                             ))}
                                         </div>
                                     ) : (
                                         <p className="text-muted-foreground text-center py-8">
-                                            No subjects assigned yet
+                                            No learning areas assigned yet
                                         </p>
                                     )}
                                 </CardContent>

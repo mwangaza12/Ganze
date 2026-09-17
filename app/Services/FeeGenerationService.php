@@ -8,17 +8,10 @@ use App\Models\StudentFee;
 
 class FeeGenerationService
 {
-    /**
-     * Create a StudentFee for every active student in this fee structure's
-     * class who doesn't already have one. Safe to call repeatedly — it
-     * only ever fills in what's missing, never duplicates or overwrites.
-     *
-     * @return int number of StudentFee records created
-     */
     public function generateForStructure(FeeStructure $feeStructure): int
     {
         $students = Student::active()
-            ->where('class_id', $feeStructure->class_id)
+            ->where('grade_id', $feeStructure->grade_id)
             ->get();
 
         $created = 0;
@@ -32,17 +25,9 @@ class FeeGenerationService
         return $created;
     }
 
-    /**
-     * Create a StudentFee for this student for every fee structure that
-     * applies to their class in the current academic year. Meant to be
-     * called right after a student is admitted, so they're billed for
-     * whatever the rest of their class is already being billed for.
-     *
-     * @return int number of StudentFee records created
-     */
     public function generateForStudent(Student $student): int
     {
-        $structures = FeeStructure::where('class_id', $student->class_id)
+        $structures = FeeStructure::where('grade_id', $student->grade_id)
             ->whereHas('academicYear', fn ($query) => $query->where('is_current', true))
             ->get();
 

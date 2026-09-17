@@ -4,26 +4,23 @@ namespace App\Http\Controllers;
 
 use App\Models\Attendance;
 use App\Models\Student;
-use App\Models\ClassModel;
+use App\Models\Grade;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class AttendanceController extends Controller
 {
-    /**
-     * Display attendance records
-     */
     public function index(Request $request)
     {
-        $query = Attendance::with(['student', 'class', 'markedBy']);
+        $query = Attendance::with(['student', 'grade', 'markedBy']);
 
         if ($request->has('date')) {
             $query->whereDate('date', $request->date);
         }
 
-        if ($request->has('class_id')) {
-            $query->where('class_id', $request->class_id);
+        if ($request->has('grade_id')) {
+            $query->where('grade_id', $request->grade_id);
         }
 
         if ($request->has('status')) {
@@ -31,27 +28,24 @@ class AttendanceController extends Controller
         }
 
         $attendance = $query->latest('date')->paginate($request->per_page ?? 50);
-        $classes = ClassModel::all();
+        $grades = Grade::ordered()->get();
 
         return Inertia::render('Attendance/Index', [
             'attendance' => $attendance,
-            'classes' => $classes,
-            'filters' => $request->only(['date', 'class_id', 'status'])
+            'grades' => $grades,
+            'filters' => $request->only(['date', 'grade_id', 'status'])
         ]);
     }
 
-    /**
-     * Show form to mark attendance
-     */
     public function create(Request $request)
     {
-        $classes = ClassModel::with('streams')->get();
-        $selectedClass = null;
+        $grades = Grade::with('streams')->ordered()->get();
+        $selectedGrade = null;
         $students = [];
 
-        if ($request->has('class_id')) {
-            $selectedClass = ClassModel::with('streams')->findOrFail($request->class_id);
-            $students = Student::where('class_id', $request->class_id)
+        if ($request->has('grade_id')) {
+            $selectedGrade = Grade::with('streams')->findOrFail($request->grade_id);
+            $students = Student::where('grade_id', $request->grade_id)
                 ->where('status', 'active')
                 ->with(['attendance' => function($query) use ($request) {
                     if ($request->has('date')) {
@@ -62,20 +56,17 @@ class AttendanceController extends Controller
         }
 
         return Inertia::render('Attendance/Create', [
-            'classes' => $classes,
-            'selectedClass' => $selectedClass,
+            'grades' => $grades,
+            'selectedGrade' => $selectedGrade,
             'students' => $students,
             'date' => $request->date ?? today()->format('Y-m-d')
         ]);
     }
 
-    /**
-     * Mark attendance for a class
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'class_id' => 'required|exists:classes,id',
+            'grade_id' => 'required|exists:grades,id',
             'date' => 'required|date',
             'attendance' => 'required|array',
             'attendance.*.student_id' => 'required|exists:students,id',
@@ -83,49 +74,44 @@ class AttendanceController extends Controller
             'attendance.*.remarks' => 'nullable|string',
         ]);
 
-        dd($validated);
+        DB::beginTransaction();
+        try {
+            $marked_by = auth()->user()->teacher->id ?? null;
 
-        // DB::beginTransaction();
-        // try {
-        //     $marked_by = auth()->user()->teacher->id ?? null;
+            foreach ($validated['attendance'] as $record) {
+                Attendance::updateOrCreate(
+                    [
+                        'student_id' => $record['student_id'],
+                        'date' => $validated['date'],
+                    ],
+                    [
+                        'grade_id' => $validated['grade_id'],
+                        'status' => $record['status'],
+                        'remarks' => $record['remarks'] ?? null,
+                        'marked_by' => $marked_by,
+                        'check_in_time' => now(),
+                    ]
+                );
+            }
 
-        //     foreach ($validated['attendance'] as $record) {
-        //         Attendance::updateOrCreate(
-        //             [
-        //                 'student_id' => $record['student_id'],
-        //                 'date' => $validated['date'],
-        //             ],
-        //             [
-        //                 'class_id' => $validated['class_id'],
-        //                 'status' => $record['status'],
-        //                 'remarks' => $record['remarks'] ?? null,
-        //                 'marked_by' => $marked_by,
-        //                 'check_in_time' => now(),
-        //             ]
-        //         );
-        //     }
+            DB::commit();
 
-        //     DB::commit();
+            return redirect()->route('attendance.index')
+                ->with('success', 'Attendance marked successfully');
 
-        //     return redirect()->route('attendance.index')
-        //         ->with('success', 'Attendance marked successfully');
-
-        // } catch (\Exception $e) {
-        //     DB::rollBack();
-        //     return back()->withErrors(['error' => 'Failed to mark attendance: ' . $e->getMessage()])
-        //         ->withInput();
-        // }
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withErrors(['error' => 'Failed to mark attendance: ' . $e->getMessage()])
+                ->withInput();
+        }
     }
 
-    /**
-     * Show attendance report for a class
-     */
-    public function classReport(Request $request, $classId)
+    public function classReport(Request $request, $gradeId)
     {
-        $class = ClassModel::with('streams')->findOrFail($classId);
+        $grade = Grade::with('streams')->findOrFail($gradeId);
         $date = $request->date ?? today();
 
-        $students = Student::where('class_id', $classId)
+        $students = Student::where('grade_id', $gradeId)
             ->where('status', 'active')
             ->with(['attendance' => function($query) use ($date) {
                 $query->whereDate('date', $date);
@@ -133,18 +119,15 @@ class AttendanceController extends Controller
             ->get();
 
         return Inertia::render('Attendance/ClassReport', [
-            'class' => $class,
+            'grade' => $grade,
             'students' => $students,
             'date' => $date
         ]);
     }
 
-    /**
-     * Show attendance summary for a student
-     */
-   public function studentSummary($studentId, Request $request)
+    public function studentSummary($studentId, Request $request)
     {
-        $student = Student::with(['class', 'stream'])->findOrFail($studentId);
+        $student = Student::with(['grade', 'stream'])->findOrFail($studentId);
         $this->authorize('view', $student);
         $startDate = $request->start_date ?? now()->startOfMonth();
         $endDate = $request->end_date ?? now()->endOfMonth();

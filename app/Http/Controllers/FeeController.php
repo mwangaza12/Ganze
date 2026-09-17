@@ -8,7 +8,7 @@ use App\Models\Payment;
 use App\Models\Student;
 use App\Models\AcademicYear;
 use App\Models\Term;
-use App\Models\ClassModel;
+use App\Models\Grade;
 use App\Services\FeeGenerationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -20,60 +20,50 @@ class FeeController extends Controller
     {
     }
 
-    /**
-     * Display fee structures
-     */
     public function index(Request $request)
     {
-        $query = FeeStructure::with(['academicYear', 'term', 'class'])
+        $query = FeeStructure::with(['academicYear', 'term', 'grade'])
             ->withCount('studentFees');
 
         if ($request->has('term_id')) {
             $query->where('term_id', $request->term_id);
         }
 
-        if ($request->has('class_id')) {
-            $query->where('class_id', $request->class_id);
+        if ($request->has('grade_id')) {
+            $query->where('grade_id', $request->grade_id);
         }
 
         $feeStructures = $query->get();
         $terms = Term::with('academicYear')->get();
-        $classes = ClassModel::withCount(['students' => fn ($q) => $q->where('status', 'active')])->get();
+        $grades = Grade::withCount(['students' => fn ($q) => $q->where('status', 'active')])->ordered()->get();
 
         return Inertia::render('Fees/Index', [
             'feeStructures' => $feeStructures,
             'terms' => $terms,
-            'classes' => $classes,
-            'filters' => $request->only(['term_id', 'class_id'])
+            'grades' => $grades,
+            'filters' => $request->only(['term_id', 'grade_id'])
         ]);
     }
 
-    /**
-     * Show form to create fee structure
-     */
     public function create()
     {
         $academicYears = AcademicYear::all();
         $terms = Term::with('academicYear')->get();
-        $classes = ClassModel::all();
+        $grades = Grade::ordered()->get();
 
         return Inertia::render('Fees/Create', [
             'academicYears' => $academicYears,
             'terms' => $terms,
-            'classes' => $classes
+            'grades' => $grades
         ]);
     }
 
-    /**
-     * Store fee structure, then immediately bill every active student in
-     * that class for it.
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
             'academic_year_id' => 'required|exists:academic_years,id',
             'term_id' => 'required|exists:terms,id',
-            'class_id' => 'required|exists:classes,id',
+            'grade_id' => 'required|exists:grades,id',
             'fee_type' => 'required|string',
             'amount' => 'required|numeric|min:0',
             'description' => 'nullable|string',
@@ -87,12 +77,6 @@ class FeeController extends Controller
             ->with('success', "Fee structure created. {$billed} student(s) billed.");
     }
 
-    /**
-     * Re-run fee generation for an existing fee structure. Useful when a
-     * student is added to the class after the structure was created, or
-     * when a bulk-import happens outside the normal admission flow.
-     * Safe to call repeatedly — it only fills in what's missing.
-     */
     public function generateMissing(FeeStructure $feeStructure)
     {
         $billed = $this->feeGenerationService->generateForStructure($feeStructure);
@@ -101,18 +85,15 @@ class FeeController extends Controller
             'success',
             $billed > 0
                 ? "Billed {$billed} additional student(s)."
-                : 'Every active student in this class is already billed.'
+                : 'Every active student in this grade is already billed.'
         );
     }
 
-    /**
-     * Show student fees
-     */
     public function studentFees($studentId)
     {
-        $student = Student::with(['class', 'stream'])->findOrFail($studentId);
+        $student = Student::with(['grade', 'stream'])->findOrFail($studentId);
         $this->authorize('view', $student);
-        
+
         $fees = StudentFee::where('student_id', $studentId)
             ->with(['feeStructure', 'payments'])
             ->get();
@@ -130,12 +111,9 @@ class FeeController extends Controller
         ]);
     }
 
-    /**
-     * Show payment form
-     */
     public function createPayment($studentId)
     {
-        $student = Student::with(['class'])->findOrFail($studentId);
+        $student = Student::with(['grade'])->findOrFail($studentId);
         $pendingFees = StudentFee::where('student_id', $studentId)
             ->where('balance', '>', 0)
             ->with('feeStructure')
@@ -147,9 +125,6 @@ class FeeController extends Controller
         ]);
     }
 
-    /**
-     * Record payment
-     */
     public function storePayment(Request $request)
     {
         $validated = $request->validate([
@@ -173,10 +148,8 @@ class FeeController extends Controller
                 ])->withInput();
             }
 
-            // Generate receipt number
             $receiptNumber = Payment::generateReceiptNumber();
 
-            // Create payment
             $payment = Payment::create([
                 'student_id' => $validated['student_id'],
                 'student_fee_id' => $validated['student_fee_id'],
@@ -189,16 +162,15 @@ class FeeController extends Controller
                 'received_by' => auth()->id(),
             ]);
 
-            // Update student fee
             $studentFee->amount_paid += $validated['amount'];
             $studentFee->balance = $studentFee->amount_due - $studentFee->amount_paid;
-            
+
             if ($studentFee->balance <= 0) {
                 $studentFee->status = 'paid';
             } elseif ($studentFee->amount_paid > 0) {
                 $studentFee->status = 'partial';
             }
-            
+
             $studentFee->save();
 
             DB::commit();
@@ -213,13 +185,10 @@ class FeeController extends Controller
         }
     }
 
-    /**
-     * Show payment receipt
-     */
     public function receipt($receiptNumber)
     {
         $payment = Payment::where('receipt_number', $receiptNumber)
-            ->with(['student.class', 'studentFee.feeStructure', 'receivedBy'])
+            ->with(['student.grade', 'studentFee.feeStructure', 'receivedBy'])
             ->firstOrFail();
 
         $this->authorize('view', $payment->student);
@@ -229,13 +198,10 @@ class FeeController extends Controller
         ]);
     }
 
-    /**
-     * Download payment receipt as PDF
-     */
     public function receiptPdf($receiptNumber)
     {
         $payment = Payment::where('receipt_number', $receiptNumber)
-            ->with(['student.class', 'studentFee.feeStructure', 'receivedBy'])
+            ->with(['student.grade', 'studentFee.feeStructure', 'receivedBy'])
             ->firstOrFail();
 
         $this->authorize('view', $payment->student);

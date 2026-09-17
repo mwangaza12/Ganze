@@ -7,72 +7,69 @@ import { Plus, BookOpen, Pencil, Trash2 } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
 
-export default function Index({ subjects }: { subjects: any}) {
-    const handleDelete = ({ id, name }: { id: any; name: any; }) => {
+export default function Index({ learningAreas }: { learningAreas: any }) {
+    const handleDelete = (id: any, name: any) => {
         if (confirm(`Are you sure you want to delete ${name}?`)) {
-            router.delete(`/subjects/${id}`);
+            router.delete(`/learning-areas/${id}`);
         }
     };
 
     const getCategoryBadge = (category: any) => {
-        const badges = {
-            compulsory: { variant: 'default', label: 'Compulsory' },
-            science: { variant: 'secondary', label: 'Science' },
-            humanities: { variant: 'outline', label: 'Humanities' },
-            technical: { variant: 'secondary', label: 'Technical' },
-            language: { variant: 'outline', label: 'Language' },
+        const badges: any = {
+            core: { variant: 'default', label: 'Core' },
+            optional: { variant: 'outline', label: 'Optional' },
         };
-        return badges[category] || badges.compulsory;
+        return badges[category] || badges.core;
     };
 
     const breadcrumbs: BreadcrumbItem[] = [
         {
-            title: "Subjects",
-            href: "/subjects",
+            title: "Learning Areas",
+            href: "/learning-areas",
         }
     ]
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Subjects" />
+            <Head title="Learning Areas" />
 
             <div className="py-6">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center mb-6">
                         <div>
-                            <h2 className="text-3xl font-bold tracking-tight">Subjects</h2>
-                            <p className="text-muted-foreground">Manage school subjects</p>
+                            <h2 className="text-3xl font-bold tracking-tight">Learning Areas</h2>
+                            <p className="text-muted-foreground">Manage the school's learning areas</p>
                         </div>
                         <Button asChild>
-                            <Link href="/subjects/create">
+                            <Link href="/learning-areas/create">
                                 <Plus className="mr-2 h-4 w-4" />
-                                Add Subject
+                                Add Learning Area
                             </Link>
                         </Button>
                     </div>
 
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                        {subjects?.map((subject: any) => {
-                            const categoryBadge = getCategoryBadge(subject.category);
+                        {learningAreas?.map((learningArea: any) => {
+                            const categoryBadge = getCategoryBadge(learningArea.category);
                             return (
-                                <Card key={subject.id}>
+                                <Card key={learningArea.id}>
                                     <CardContent className="pt-6">
                                         <div className="flex items-start justify-between mb-3">
                                             <div className="flex items-center gap-2">
                                                 <BookOpen className="h-5 w-5 text-primary" />
                                                 <div>
-                                                    <h3 className="font-semibold">{subject.name}</h3>
-                                                    <p className="text-sm text-muted-foreground">Code: {subject.code}</p>
+                                                    <h3 className="font-semibold">{learningArea.name}</h3>
+                                                    <p className="text-sm text-muted-foreground">Code: {learningArea.code}</p>
                                                 </div>
                                             </div>
                                             <Badge variant={categoryBadge.variant}>{categoryBadge.label}</Badge>
                                         </div>
 
-                                        {subject.teachers && subject.teachers.length > 0 && (
+                                        {learningArea.teachers && learningArea.teachers.length > 0 && (
                                             <div className="mb-3">
                                                 <p className="text-sm text-muted-foreground mb-1">Teachers:</p>
                                                 <div className="flex flex-wrap gap-1">
-                                                    {subject.teachers.map((teacher: any) => (
+                                                    {learningArea.teachers.map((teacher: any) => (
                                                         <Badge key={teacher.id} variant="outline" className="text-xs">
                                                             {teacher.full_name}
                                                         </Badge>
@@ -83,15 +80,20 @@ export default function Index({ subjects }: { subjects: any}) {
 
                                         <div className="flex gap-2 mt-4">
                                             <Button variant="outline" size="sm" asChild className="flex-1">
-                                                <Link href={`/subjects/${subject.id}/edit`}>
+                                                <Link href={`/learning-areas/${learningArea.id}`}>
+                                                    View
+                                                </Link>
+                                            </Button>
+                                            <Button variant="outline" size="sm" asChild className="flex-1">
+                                                <Link href={`/learning-areas/${learningArea.id}/edit`}>
                                                     <Pencil className="h-3 w-3 mr-1" />
                                                     Edit
                                                 </Link>
                                             </Button>
-                                            <Button 
-                                                variant="outline" 
-                                                size="sm" 
-                                                onClick={() => handleDelete(subject.id, subject.name)}
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => handleDelete(learningArea.id, learningArea.name)}
                                                 className="flex-1"
                                             >
                                                 <Trash2 className="h-3 w-3 mr-1 text-destructive" />

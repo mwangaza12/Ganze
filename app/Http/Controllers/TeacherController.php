@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Teacher;
 use App\Models\User;
-use App\Models\Subject;
+use App\Models\LearningArea;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -15,7 +15,7 @@ class TeacherController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Teacher::with(['user', 'subjects']);
+        $query = Teacher::with(['user', 'learningAreas']);
 
         if ($request->has('search') && $request->search) {
             $search = $request->search;
@@ -36,10 +36,10 @@ class TeacherController extends Controller
 
     public function create()
     {
-        $subjects = Subject::active()->get();
+        $learningAreas = LearningArea::active()->get();
 
         return Inertia::render('Teachers/Create', [
-            'subjects' => $subjects
+            'learningAreas' => $learningAreas
         ]);
     }
 
@@ -61,7 +61,7 @@ class TeacherController extends Controller
             'emergency_contact' => 'required|string',
             'emergency_contact_name' => 'required|string',
             'email' => 'required|email|unique:users',
-            'subject_ids' => 'nullable|array',
+            'learning_area_ids' => 'nullable|array',
         ]);
 
         DB::beginTransaction();
@@ -78,8 +78,8 @@ class TeacherController extends Controller
             $validated['user_id'] = $user->id;
             $teacher = Teacher::create($validated);
 
-            if (!empty($validated['subject_ids'])) {
-                $teacher->subjects()->attach($validated['subject_ids']);
+            if (!empty($validated['learning_area_ids'])) {
+                $teacher->learningAreas()->attach($validated['learning_area_ids']);
             }
 
             DB::commit();
@@ -96,8 +96,12 @@ class TeacherController extends Controller
 
     public function show($id)
     {
-        $teacher = Teacher::with(['subjects', 'streams.class', 'classSubjects.class', 'classSubjects.subject'])
-            ->findOrFail($id);
+        $teacher = Teacher::with([
+            'learningAreas',
+            'streams.grade',
+            'gradeLearningAreas.grade',
+            'gradeLearningAreas.learningArea',
+        ])->findOrFail($id);
 
         return Inertia::render('Teachers/Show', [
             'teacher' => $teacher
@@ -106,12 +110,12 @@ class TeacherController extends Controller
 
     public function edit($id)
     {
-        $teacher = Teacher::with('subjects')->findOrFail($id);
-        $subjects = Subject::active()->get();
+        $teacher = Teacher::with('learningAreas')->findOrFail($id);
+        $learningAreas = LearningArea::active()->get();
 
         return Inertia::render('Teachers/Create', [
             'teacher' => $teacher,
-            'subjects' => $subjects
+            'learningAreas' => $learningAreas
         ]);
     }
 
@@ -133,15 +137,15 @@ class TeacherController extends Controller
             'address' => 'nullable|string',
             'emergency_contact' => 'sometimes|string',
             'emergency_contact_name' => 'sometimes|string',
-            'subject_ids' => 'nullable|array',
+            'learning_area_ids' => 'nullable|array',
         ]);
 
         DB::beginTransaction();
         try {
             $teacher->update($validated);
 
-            if (isset($validated['subject_ids'])) {
-                $teacher->subjects()->sync($validated['subject_ids']);
+            if (isset($validated['learning_area_ids'])) {
+                $teacher->learningAreas()->sync($validated['learning_area_ids']);
             }
 
             DB::commit();
@@ -165,19 +169,19 @@ class TeacherController extends Controller
             ->with('success', 'Teacher deleted successfully');
     }
 
-    public function assignSubject($teacherId, $subjectId)
+    public function assignLearningArea($teacherId, $learningAreaId)
     {
         $teacher = Teacher::findOrFail($teacherId);
-        $teacher->subjects()->attach($subjectId);
+        $teacher->learningAreas()->attach($learningAreaId);
 
-        return back()->with('success', 'Subject assigned successfully');
+        return back()->with('success', 'Learning area assigned successfully');
     }
 
-    public function unassignSubject($teacherId, $subjectId)
+    public function unassignLearningArea($teacherId, $learningAreaId)
     {
         $teacher = Teacher::findOrFail($teacherId);
-        $teacher->subjects()->detach($subjectId);
+        $teacher->learningAreas()->detach($learningAreaId);
 
-        return back()->with('success', 'Subject unassigned successfully');
+        return back()->with('success', 'Learning area unassigned successfully');
     }
 }

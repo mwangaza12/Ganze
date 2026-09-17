@@ -9,60 +9,60 @@ import { Switch } from '@/components/ui/switch';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
 
-export default function SubjectCreateEdit({ subject }: { subject: any}) {
-    const isEdit = !!subject;
-    
+export default function LearningAreaCreateEdit({ learningArea }: { learningArea?: any }) {
+    const isEdit = !!learningArea;
+
     const { data, setData, post, put, processing, errors } = useForm({
-        name: subject?.name || '',
-        code: subject?.code || '',
-        category: subject?.category || '',
-        is_active: subject?.is_active ?? true,
+        name: learningArea?.name || '',
+        code: learningArea?.code || '',
+        category: learningArea?.category || '',
+        is_active: learningArea?.is_active ?? true,
     });
 
     const handleSubmit = (e: any) => {
         e.preventDefault();
-        
+
         if (isEdit) {
-            put(`/subjects/${subject.id}`);
+            put(`/learning-areas/${learningArea.id}`);
         } else {
-            post('/subjects');
+            post('/learning-areas');
         }
     };
 
     const breadcrumbs: BreadcrumbItem[] = [
         {
-            title: "Subjects",
-            href: "/subjects"
+            title: "Learning Areas",
+            href: "/learning-areas"
         }
     ]
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title={isEdit ? 'Edit Subject' : 'Add Subject'} />
+            <Head title={isEdit ? 'Edit Learning Area' : 'Add Learning Area'} />
 
             <div className="py-6">
                 <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center gap-4 mb-6">
                         <div>
                             <h2 className="text-3xl font-bold tracking-tight">
-                                {isEdit ? 'Edit Subject' : 'Add New Subject'}
+                                {isEdit ? 'Edit Learning Area' : 'Add New Learning Area'}
                             </h2>
                             <p className="text-muted-foreground">
-                                {isEdit ? 'Update subject information' : 'Create a new subject'}
+                                {isEdit ? 'Update learning area information' : 'Create a new learning area'}
                             </p>
                         </div>
                     </div>
 
                     <Card>
                         <CardHeader>
-                            <CardTitle>Subject Details</CardTitle>
-                            <CardDescription>Enter the subject information</CardDescription>
+                            <CardTitle>Learning Area Details</CardTitle>
+                            <CardDescription>Enter the learning area information</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="name">
-                                        Subject Name <span className="text-destructive">*</span>
+                                        Name <span className="text-destructive">*</span>
                                     </Label>
                                     <Input
                                         id="name"
@@ -73,22 +73,24 @@ export default function SubjectCreateEdit({ subject }: { subject: any}) {
                                     {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
                                 </div>
 
-                                <div className="space-y-2">
-                                    <Label htmlFor="code">
-                                        Subject Code <span className="text-destructive">*</span>
-                                    </Label>
-                                    <Input
-                                        id="code"
-                                        value={data.code}
-                                        onChange={(e) => setData('code', e.target.value.toUpperCase())}
-                                        placeholder="e.g., MATH, ENG, KIS"
-                                        maxLength={10}
-                                    />
-                                    {errors.code && <p className="text-sm text-destructive">{errors.code}</p>}
-                                    <p className="text-sm text-muted-foreground">
-                                        Short code for the subject (e.g., MATH for Mathematics)
-                                    </p>
-                                </div>
+                                {!isEdit && (
+                                    <div className="space-y-2">
+                                        <Label htmlFor="code">
+                                            Code <span className="text-destructive">*</span>
+                                        </Label>
+                                        <Input
+                                            id="code"
+                                            value={data.code}
+                                            onChange={(e) => setData('code', e.target.value.toUpperCase())}
+                                            placeholder="e.g., MATH, ENG, KIS"
+                                            maxLength={20}
+                                        />
+                                        {errors.code && <p className="text-sm text-destructive">{errors.code}</p>}
+                                        <p className="text-sm text-muted-foreground">
+                                            A short unique code — can't be changed after creation.
+                                        </p>
+                                    </div>
+                                )}
 
                                 <div className="space-y-2">
                                     <Label htmlFor="category">
@@ -99,16 +101,13 @@ export default function SubjectCreateEdit({ subject }: { subject: any}) {
                                             <SelectValue placeholder="Select category" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="compulsory">Compulsory</SelectItem>
-                                            <SelectItem value="science">Science</SelectItem>
-                                            <SelectItem value="humanities">Humanities</SelectItem>
-                                            <SelectItem value="technical">Technical</SelectItem>
-                                            <SelectItem value="language">Language</SelectItem>
+                                            <SelectItem value="core">Core</SelectItem>
+                                            <SelectItem value="optional">Optional</SelectItem>
                                         </SelectContent>
                                     </Select>
                                     {errors.category && <p className="text-sm text-destructive">{errors.category}</p>}
                                     <p className="text-sm text-muted-foreground">
-                                        Subject category helps in organizing subjects by department
+                                        Core learning areas are compulsory; optional ones are typically tied to a Senior School pathway.
                                     </p>
                                 </div>
 
@@ -116,7 +115,7 @@ export default function SubjectCreateEdit({ subject }: { subject: any}) {
                                     <div className="space-y-0.5">
                                         <Label htmlFor="is_active">Active Status</Label>
                                         <p className="text-sm text-muted-foreground">
-                                            Enable or disable this subject
+                                            Enable or disable this learning area
                                         </p>
                                     </div>
                                     <Switch
@@ -128,47 +127,35 @@ export default function SubjectCreateEdit({ subject }: { subject: any}) {
 
                                 <div className="flex gap-4 pt-4">
                                     <Button type="button" onClick={handleSubmit} disabled={processing}>
-                                        {processing ? 'Saving...' : (isEdit ? 'Update Subject' : 'Create Subject')}
+                                        {processing ? 'Saving...' : (isEdit ? 'Update Learning Area' : 'Create Learning Area')}
                                     </Button>
                                     <Button type="button" variant="outline" asChild>
-                                        <Link href="/subjects">Cancel</Link>
+                                        <Link href="/learning-areas">Cancel</Link>
                                     </Button>
                                 </div>
                             </div>
                         </CardContent>
                     </Card>
 
-                    {/* Common Kenyan Secondary School Subjects Reference */}
                     {!isEdit && (
                         <Card className="mt-6">
                             <CardHeader>
-                                <CardTitle className="text-base">Common Secondary School Subjects</CardTitle>
+                                <CardTitle className="text-base">CBC Learning Area Reference</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <div className="text-sm space-y-2">
-                                    <p className="font-medium">Compulsory Subjects:</p>
+                                    <p className="font-medium">Junior School core learning areas:</p>
                                     <p className="text-muted-foreground">
-                                        English, Kiswahili, Mathematics
+                                        English, Kiswahili/KSL, Mathematics, Integrated Science, Social Studies,
+                                        Agriculture & Nutrition, Pre-Technical Studies, Christian/Islamic/Hindu
+                                        Religious Education, Creative Arts & Sports
                                     </p>
-                                    
-                                    <p className="font-medium mt-3">Sciences:</p>
+
+                                    <p className="font-medium mt-3">Senior School pathways:</p>
                                     <p className="text-muted-foreground">
-                                        Biology, Chemistry, Physics
-                                    </p>
-                                    
-                                    <p className="font-medium mt-3">Humanities:</p>
-                                    <p className="text-muted-foreground">
-                                        History, Geography, CRE/IRE, Business Studies
-                                    </p>
-                                    
-                                    <p className="font-medium mt-3">Languages:</p>
-                                    <p className="text-muted-foreground">
-                                        French, German, Arabic
-                                    </p>
-                                    
-                                    <p className="font-medium mt-3">Technical:</p>
-                                    <p className="text-muted-foreground">
-                                        Computer Studies, Agriculture, Home Science, Art & Design
+                                        STEM, Social Sciences, Arts & Sports Science — each pathway carries its own
+                                        set of compulsory and optional learning areas, assigned per grade under
+                                        Grades → Learning Areas.
                                     </p>
                                 </div>
                             </CardContent>

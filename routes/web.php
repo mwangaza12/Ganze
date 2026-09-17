@@ -6,9 +6,15 @@ use Laravel\Fortify\Features;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\GuardianController;
 use App\Http\Controllers\TeacherController;
-use App\Http\Controllers\ClassController;
+use App\Http\Controllers\GradeController;
 use App\Http\Controllers\StreamController;
-use App\Http\Controllers\SubjectController;
+use App\Http\Controllers\EducationLevelController;
+use App\Http\Controllers\PathwayController;
+use App\Http\Controllers\StudentPathwayController;
+use App\Http\Controllers\LearningAreaController;
+use App\Http\Controllers\StrandController;
+use App\Http\Controllers\SubStrandController;
+use App\Http\Controllers\LearningOutcomeController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\ExamController;
 use App\Http\Controllers\FeeController;
@@ -41,10 +47,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('attendance', [AttendanceController::class, 'index'])->name('attendance.index');
         Route::get('attendance/create', [AttendanceController::class, 'create'])->name('attendance.create');
         Route::post('attendance', [AttendanceController::class, 'store'])->name('attendance.store');
-        Route::get('attendance/class/{classId}/report', [AttendanceController::class, 'classReport'])
+        Route::get('attendance/grade/{gradeId}/report', [AttendanceController::class, 'classReport'])
             ->name('attendance.class-report');
 
-        // Exams & marks entry
+        // Exams & marks entry (stopgap — Phase 2 replaces with Assessments)
         Route::get('exams', [ExamController::class, 'index'])->name('exams.index');
         Route::get('exams/{exam}', [ExamController::class, 'show'])->name('exams.show');
         Route::get('exams/{examId}/enter-marks', [ExamController::class, 'enterMarks'])
@@ -59,9 +65,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Reports
         Route::prefix('reports')->name('reports.')->group(function () {
-            Route::get('attendance/class/{classId}', [ReportController::class, 'attendanceByClass'])
+            Route::get('attendance/grade/{gradeId}', [ReportController::class, 'attendanceByClass'])
                 ->name('attendance.class');
-            Route::get('academic/class/{classId}/term/{termId}', [ReportController::class, 'academicReport'])
+            Route::get('academic/grade/{gradeId}/term/{termId}', [ReportController::class, 'academicReport'])
                 ->name('academic');
         });
     });
@@ -99,6 +105,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::patch('students/{student}', [StudentController::class, 'update']);
         Route::delete('students/{student}', [StudentController::class, 'destroy'])->name('students.destroy');
 
+        // Senior School pathway assignment
+        Route::post('students/{studentId}/pathway', [StudentPathwayController::class, 'store'])
+            ->name('students.pathway.store');
+
         // Guardians
         Route::resource('guardians', GuardianController::class);
         Route::post('students/{studentId}/guardians/{guardianId}/attach', [GuardianController::class, 'attachToStudent'])
@@ -110,26 +120,58 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Teachers
         Route::resource('teachers', TeacherController::class);
-        Route::post('teachers/{teacherId}/subjects/{subjectId}/assign', [TeacherController::class, 'assignSubject'])
-            ->name('teachers.subjects.assign');
-        Route::delete('teachers/{teacherId}/subjects/{subjectId}/unassign', [TeacherController::class, 'unassignSubject'])
-            ->name('teachers.subjects.unassign');
+        Route::post('teachers/{teacherId}/learning-areas/{learningAreaId}/assign', [TeacherController::class, 'assignLearningArea'])
+            ->name('teachers.learning-areas.assign');
+        Route::delete('teachers/{teacherId}/learning-areas/{learningAreaId}/unassign', [TeacherController::class, 'unassignLearningArea'])
+            ->name('teachers.learning-areas.unassign');
 
-        // Classes & Streams
-        Route::resource('classes', ClassController::class);
-        Route::get('classes/{classId}/students', [ClassController::class, 'students'])->name('classes.students');
+        // Education levels
+        Route::resource('education-levels', EducationLevelController::class);
 
-        Route::get('classes/{classId}/streams/create', [StreamController::class, 'create'])->name('classes.streams.create');
-        Route::post('classes/{classId}/streams', [StreamController::class, 'store'])->name('classes.streams.store');
-        Route::get('classes/{classId}/streams/{id}/edit', [StreamController::class, 'edit'])->name('classes.streams.edit');
-        Route::put('classes/{classId}/streams/{id}', [StreamController::class, 'update'])->name('classes.streams.update');
-        Route::delete('classes/{classId}/streams/{id}', [StreamController::class, 'destroy'])->name('classes.streams.destroy');
+        // Grades & Streams
+        Route::resource('grades', GradeController::class);
+        Route::get('grades/{gradeId}/students', [GradeController::class, 'students'])->name('grades.students');
+        Route::post('grades/{gradeId}/learning-areas/assign', [GradeController::class, 'assignLearningArea'])
+            ->name('grades.learning-areas.assign');
+        Route::delete('grades/{gradeId}/learning-areas/{gradeLearningAreaId}/unassign', [GradeController::class, 'unassignLearningArea'])
+            ->name('grades.learning-areas.unassign');
 
-        Route::post('classes/{classId}/subjects/{subjectId}/assign', [ClassController::class, 'assignSubject'])
-            ->name('classes.subjects.assign');
+        Route::get('grades/{gradeId}/streams/create', [StreamController::class, 'create'])->name('grades.streams.create');
+        Route::post('grades/{gradeId}/streams', [StreamController::class, 'store'])->name('grades.streams.store');
+        Route::get('grades/{gradeId}/streams/{id}/edit', [StreamController::class, 'edit'])->name('grades.streams.edit');
+        Route::put('grades/{gradeId}/streams/{id}', [StreamController::class, 'update'])->name('grades.streams.update');
+        Route::delete('grades/{gradeId}/streams/{id}', [StreamController::class, 'destroy'])->name('grades.streams.destroy');
 
-        // Subjects
-        Route::resource('subjects', SubjectController::class);
+        // Pathways (Senior School)
+        Route::resource('pathways', PathwayController::class);
+
+        // Learning areas & curriculum (strands / sub-strands / learning outcomes)
+        Route::resource('learning-areas', LearningAreaController::class);
+
+        Route::prefix('learning-areas/{learningAreaId}/grades/{gradeId}/strands')
+            ->name('learning-areas.strands.')
+            ->group(function () {
+                Route::get('/', [StrandController::class, 'index'])->name('index');
+                Route::post('/', [StrandController::class, 'store'])->name('store');
+                Route::put('{id}', [StrandController::class, 'update'])->name('update');
+                Route::delete('{id}', [StrandController::class, 'destroy'])->name('destroy');
+            });
+
+        Route::prefix('strands/{strandId}/sub-strands')
+            ->name('strands.sub-strands.')
+            ->group(function () {
+                Route::post('/', [SubStrandController::class, 'store'])->name('store');
+                Route::put('{id}', [SubStrandController::class, 'update'])->name('update');
+                Route::delete('{id}', [SubStrandController::class, 'destroy'])->name('destroy');
+            });
+
+        Route::prefix('sub-strands/{subStrandId}/learning-outcomes')
+            ->name('sub-strands.learning-outcomes.')
+            ->group(function () {
+                Route::post('/', [LearningOutcomeController::class, 'store'])->name('store');
+                Route::put('{id}', [LearningOutcomeController::class, 'update'])->name('update');
+                Route::delete('{id}', [LearningOutcomeController::class, 'destroy'])->name('destroy');
+            });
 
         // Academic Years & Terms
         Route::resource('academic-years', AcademicYearController::class);

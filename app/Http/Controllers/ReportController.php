@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Attendance;
 use App\Models\Student;
-use App\Models\ClassModel;
+use App\Models\Grade;
 use App\Models\Term;
 use App\Models\StudentFee;
 use App\Models\Mark;
@@ -13,13 +13,13 @@ use Inertia\Inertia;
 
 class ReportController extends Controller
 {
-    public function attendanceByClass(Request $request, $classId)
+    public function attendanceByClass(Request $request, $gradeId)
     {
-        $class = ClassModel::findOrFail($classId);
+        $grade = Grade::findOrFail($gradeId);
         $startDate = $request->start_date ?? now()->startOfMonth();
         $endDate = $request->end_date ?? now()->endOfMonth();
 
-        $students = Student::where('class_id', $classId)
+        $students = Student::where('grade_id', $gradeId)
             ->where('status', 'active')
             ->with(['attendance' => function($query) use ($startDate, $endDate) {
                 $query->whereBetween('date', [$startDate, $endDate]);
@@ -41,7 +41,7 @@ class ReportController extends Controller
         });
 
         return Inertia::render('Reports/AttendanceByClass', [
-            'classData' => $class,
+            'gradeData' => $grade,
             'report' => $report,
             'startDate' => $startDate,
             'endDate' => $endDate
@@ -50,7 +50,7 @@ class ReportController extends Controller
 
     public function attendanceByStudent($studentId, Request $request)
     {
-        $student = Student::with(['class', 'stream'])->findOrFail($studentId);
+        $student = Student::with(['grade', 'stream'])->findOrFail($studentId);
         $startDate = $request->start_date ?? now()->startOfMonth();
         $endDate = $request->end_date ?? now()->endOfMonth();
 
@@ -79,30 +79,30 @@ class ReportController extends Controller
         ]);
     }
 
-    public function academicReport($classId, $termId)
+    public function academicReport($gradeId, $termId)
     {
-        $class = ClassModel::findOrFail($classId);
+        $grade = Grade::findOrFail($gradeId);
         $term = Term::with('academicYear')->findOrFail($termId);
 
-        $students = Student::where('class_id', $classId)
+        $students = Student::where('grade_id', $gradeId)
             ->where('status', 'active')
             ->with(['marks' => function($query) use ($termId) {
                 $query->whereHas('exam', function($q) use ($termId) {
                     $q->where('term_id', $termId);
-                })->with(['subject', 'exam']);
+                })->with(['learningArea', 'exam']);
             }])
             ->get();
 
         $report = $students->map(function($student) {
             $marks = $student->marks;
             $totalPoints = $marks->sum('points');
-            $totalSubjects = $marks->count();
-            $meanPoints = $totalSubjects > 0 ? $totalPoints / $totalSubjects : 0;
+            $totalAreas = $marks->count();
+            $meanPoints = $totalAreas > 0 ? $totalPoints / $totalAreas : 0;
 
             return [
                 'student' => $student,
                 'total_points' => $totalPoints,
-                'total_subjects' => $totalSubjects,
+                'total_learning_areas' => $totalAreas,
                 'mean_points' => round($meanPoints, 2),
                 'mean_grade' => $this->getMeanGrade($meanPoints),
                 'marks' => $marks
@@ -110,7 +110,7 @@ class ReportController extends Controller
         })->sortByDesc('total_points')->values();
 
         return Inertia::render('Reports/AcademicReport', [
-            'class' => $class,
+            'grade' => $grade,
             'term' => $term,
             'report' => $report
         ]);
@@ -119,9 +119,9 @@ class ReportController extends Controller
     public function feesSummary(Request $request)
     {
         $termId = $request->term_id;
-        $classId = $request->class_id;
+        $gradeId = $request->grade_id;
 
-        $query = StudentFee::with(['student.class', 'feeStructure']);
+        $query = StudentFee::with(['student.grade', 'feeStructure']);
 
         if ($termId) {
             $query->whereHas('feeStructure', function($q) use ($termId) {
@@ -129,9 +129,9 @@ class ReportController extends Controller
             });
         }
 
-        if ($classId) {
-            $query->whereHas('student', function($q) use ($classId) {
-                $q->where('class_id', $classId);
+        if ($gradeId) {
+            $query->whereHas('student', function($q) use ($gradeId) {
+                $q->where('grade_id', $gradeId);
             });
         }
 
@@ -153,7 +153,7 @@ class ReportController extends Controller
     public function feesDefaulters(Request $request)
     {
         $fees = StudentFee::where('balance', '>', 0)
-            ->with(['student.class', 'student.guardians', 'feeStructure'])
+            ->with(['student.grade', 'student.guardians', 'feeStructure'])
             ->orderBy('balance', 'desc')
             ->get();
 
